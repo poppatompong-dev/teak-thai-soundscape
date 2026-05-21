@@ -4,148 +4,77 @@ export type SurveyData = {
   division: string;
   section: string;
 
-  // metadata
+  // Step 1: Location & Contact
   surveyDate: string;
   surveyor: string;
-  team: string;
-  department: string;
   building: string;
   floor: string;
   room: string;
   contactPerson: string;
   phone: string;
 
-  // area
-  areaType: string;
-  areaTypeOther: string;
-  roomSize: string;
-  occupants: string;
-  noiseLevel: string;
-  announcementImportance: string;
-  operatingHours: string;
-
-  // current PA
-  hasExistingSpeaker: string;
-  existingCondition: string;
+  // Step 2: Proposed Requirements
   problems: string[];
   problemsOther: string;
-  photoName: string;
-
-  // proposed
-  proposedPosition: string;
-  proposedCount: string;
   speakerType: string;
   speakerTypeOther: string;
-  cableFeasibility: string;
-  nearestPower: string;
-  constraints: string;
+  proposedCount: string;
+  proposedPosition: string;
+  photoName: string;
+
+  // Step 3: Budgeting & Feedback
   reasonForNeed: string;
-
-  // technical checklist
-  cableSafety: string;
-  ceilingReadiness: string;
-  powerAvailable: string;
-  controlAvailable: string;
-  maintenanceAccess: string;
-  userImpact: string;
-  suitability: string;
-  riskNotes: string;
-
-  // approval
-  urgency: string;
   beneficiaries: string;
-  officerNotes: string;
-  signSurveyor: string;
-  signTechnical: string;
-  signDept: string;
-  signApprover: string;
+  urgency: string;
+  comments: string;
+  satisfaction: string;
 };
 
 export const initialSurvey: SurveyData = {
   bureau: "",
   division: "",
   section: "",
+  
+  // Step 1
   surveyDate: new Date().toISOString().slice(0, 10),
-  surveyor: "นายสมชาย ใจดี",
-  team: "ทีมสำรวจระบบเสียง ก.1",
-  department: "งานบริการประชาชน",
+  surveyor: "",
   building: "อาคารสำนักงานเทศบาล",
   floor: "ชั้น 1",
-  room: "ห้องประชุมใหญ่",
-  contactPerson: "นางสาวกัลยา ศรีสุข",
-  phone: "081-234-5678",
+  room: "",
+  contactPerson: "",
+  phone: "",
 
-  areaType: "meeting",
-  areaTypeOther: "",
-  roomSize: "45",
-  occupants: "30",
-  noiseLevel: "medium",
-  announcementImportance: "high",
-  operatingHours: "08:30 - 16:30 น.",
-
-  hasExistingSpeaker: "no",
-  existingCondition: "fair",
-  problems: ["no_coverage", "unclear"],
+  // Step 2
+  problems: [],
   problemsOther: "",
-  photoName: "",
-
-  proposedPosition: "บริเวณกลางฝ้าเพดานห้องประชุม และมุมห้องด้านทิศตะวันออก",
-  proposedCount: "2",
   speakerType: "ceiling",
   speakerTypeOther: "",
-  cableFeasibility: "feasible",
-  nearestPower: "ตู้ควบคุมไฟฟ้าหลัก ชั้น 1 ห่างประมาณ 8 เมตร",
-  constraints: "ต้องเดินสายเหนือฝ้าและประสานช่วงเวลานอกเวลาราชการ",
-  reasonForNeed: "เพื่อรองรับการประชุมและประกาศข่าวสารแก่ประชาชนที่มาติดต่อ",
+  proposedCount: "1",
+  proposedPosition: "",
+  photoName: "",
 
-  cableSafety: "pass",
-  ceilingReadiness: "pass",
-  powerAvailable: "pass",
-  controlAvailable: "improve",
-  maintenanceAccess: "pass",
-  userImpact: "low",
-  suitability: "suitable",
-  riskNotes: "ควรติดตั้งนอกเวลาราชการเพื่อลดผลกระทบ",
-
+  // Step 3
+  reasonForNeed: "",
+  beneficiaries: "",
   urgency: "medium",
-  beneficiaries: "ประชาชนผู้มาติดต่อราชการประมาณ 150 คน/วัน",
-  officerNotes: "เห็นควรดำเนินการในไตรมาสถัดไป",
-  signSurveyor: "นายสมชาย ใจดี",
-  signTechnical: "",
-  signDept: "",
-  signApprover: "",
+  comments: "",
+  satisfaction: "5",
 };
 
-export const AREA_TYPES = [
-  { value: "office", label: "ห้องทำงาน" },
-  { value: "meeting", label: "ห้องประชุม" },
-  { value: "counter", label: "เคาน์เตอร์บริการ" },
-  { value: "corridor", label: "ทางเดิน/โถง" },
-  { value: "hall", label: "ห้องโถง/ห้องอเนกประสงค์" },
-  { value: "stairwell", label: "บันได/ทางหนีไฟ" },
-  { value: "other", label: "อื่น ๆ" },
-];
-
 export const PROBLEM_OPTIONS = [
-  { value: "no_coverage", label: "ไม่มีเสียงครอบคลุม" },
-  { value: "unclear", label: "เสียงไม่ชัดเจน" },
-  { value: "low_volume", label: "เสียงเบาเกินไป" },
-  { value: "loud_volume", label: "เสียงดังเกินไป" },
-  { value: "intermittent", label: "เสียงขาด ๆ หาย ๆ" },
-  { value: "cable_damage", label: "สายสัญญาณชำรุด" },
-  { value: "no_control", label: "ไม่มีจุดควบคุม" },
+  { value: "no_coverage", label: "ไม่มีลำโพงเดิม / เสียงไม่ครอบคลุม" },
+  { value: "unclear", label: "อุปกรณ์เดิมชำรุด / เสียงไม่ชัด" },
   { value: "other", label: "อื่น ๆ" },
 ];
 
 export const SPEAKER_TYPES = [
-  { value: "ceiling", label: "ลำโพงฝังฝ้าเพดาน" },
-  { value: "wall", label: "ลำโพงติดผนัง" },
-  { value: "horn", label: "ลำโพงฮอร์น" },
-  { value: "pendant", label: "ลำโพงแขวน" },
+  { value: "ceiling", label: "ลำโพงฝังฝ้าเพดาน (สำหรับห้องประชุม/สำนักงาน)" },
+  { value: "wall", label: "ลำโพงติดผนัง (สำหรับโถงทางเดิน/ที่โล่ง)" },
+  { value: "horn", label: "ลำโพงฮอร์น (สำหรับกระจายเสียงระยะไกล)" },
   { value: "other", label: "อื่น ๆ" },
 ];
 
-// Organization structure: สำนัก → กอง → ส่วน
+// Organization structure based on nsm.go.th
 export const ORG_STRUCTURE: {
   value: string;
   label: string;
@@ -156,78 +85,231 @@ export const ORG_STRUCTURE: {
     label: "สำนักปลัดเทศบาล",
     divisions: [
       {
-        value: "admin",
-        label: "กองบริหารงานทั่วไป",
+        value: "general_admin",
+        label: "ฝ่ายบริหารงานทั่วไป",
         sections: [
-          { value: "general", label: "ส่วนธุรการ" },
-          { value: "personnel", label: "ส่วนการเจ้าหน้าที่" },
-          { value: "public_service", label: "ส่วนบริการประชาชน" },
+          { value: "general", label: "งานธุรการ" },
+          { value: "public_relations", label: "งานประชาสัมพันธ์" },
         ],
       },
       {
-        value: "policy",
-        label: "กองยุทธศาสตร์และงบประมาณ",
+        value: "governance",
+        label: "ฝ่ายปกครอง",
         sections: [
-          { value: "plan", label: "ส่วนแผนและงบประมาณ" },
-          { value: "research", label: "ส่วนวิจัยและประเมินผล" },
+          { value: "registration", label: "งานทะเบียนราษฎร" },
+          { value: "security", label: "งานป้องกันและบรรเทาสาธารณภัย" },
         ],
       },
     ],
   },
   {
-    value: "office_finance",
-    label: "สำนักการคลัง",
-    divisions: [
-      {
-        value: "finance",
-        label: "กองคลัง",
-        sections: [
-          { value: "accounting", label: "ส่วนการเงินและบัญชี" },
-          { value: "revenue", label: "ส่วนพัฒนารายได้" },
-          { value: "procurement", label: "ส่วนพัสดุและทรัพย์สิน" },
-        ],
-      },
-    ],
-  },
-  {
-    value: "office_public_works",
-    label: "สำนักการช่าง",
+    value: "bureau_works",
+    label: "สำนักช่าง",
     divisions: [
       {
         value: "engineering",
-        label: "กองช่าง",
+        label: "ส่วนวิศวกรรมการก่อสร้าง",
         sections: [
-          { value: "civil", label: "ส่วนวิศวกรรมโยธา" },
-          { value: "electric", label: "ส่วนไฟฟ้าและสื่อสาร" },
-          { value: "maintenance", label: "ส่วนซ่อมบำรุง" },
+          { value: "civil", label: "งานวิศวกรรมโยธา" },
+          { value: "architecture", label: "งานสถาปัตยกรรม" },
+        ],
+      },
+      {
+        value: "maintenance",
+        label: "ส่วนการโยธา",
+        sections: [
+          { value: "public_utilities", label: "งานสาธารณูปโภค" },
+          { value: "parks", label: "งานสวนสาธารณะ" },
         ],
       },
     ],
   },
   {
-    value: "office_health",
-    label: "สำนักการสาธารณสุขและสิ่งแวดล้อม",
+    value: "bureau_finance",
+    label: "สำนักคลัง",
     divisions: [
       {
-        value: "health",
-        label: "กองสาธารณสุข",
+        value: "finance",
+        label: "ส่วนบริหารการคลัง",
         sections: [
-          { value: "promotion", label: "ส่วนส่งเสริมสุขภาพ" },
-          { value: "environment", label: "ส่วนอนามัยสิ่งแวดล้อม" },
+          { value: "accounting", label: "งานการเงินและบัญชี" },
+          { value: "procurement", label: "งานพัสดุและทรัพย์สิน" },
+        ],
+      },
+      {
+        value: "revenue",
+        label: "ส่วนพัฒนารายได้",
+        sections: [
+          { value: "tax", label: "งานจัดเก็บรายได้" },
+          { value: "asset", label: "งานทะเบียนและแผนที่ภาษี" },
         ],
       },
     ],
   },
   {
-    value: "office_education",
+    value: "bureau_health",
+    label: "สำนักสาธารณสุขและสิ่งแวดล้อม",
+    divisions: [
+      {
+        value: "health_promotion",
+        label: "ส่วนบริการสาธารณสุข",
+        sections: [
+          { value: "clinic", label: "งานศูนย์บริการสาธารณสุข" },
+          { value: "disease_control", label: "งานป้องกันและควบคุมโรค" },
+        ],
+      },
+      {
+        value: "environment",
+        label: "ส่วนสิ่งแวดล้อม",
+        sections: [
+          { value: "sanitation", label: "งานสุขาภิบาล" },
+          { value: "waste_management", label: "งานจัดการมูลฝอย" },
+        ],
+      },
+    ],
+  },
+  {
+    value: "bureau_education",
     label: "สำนักการศึกษา",
     divisions: [
       {
-        value: "education",
-        label: "กองการศึกษา",
+        value: "education_admin",
+        label: "ส่วนบริหารการศึกษา",
         sections: [
-          { value: "school", label: "ส่วนส่งเสริมการศึกษา" },
-          { value: "culture", label: "ส่วนศาสนาและวัฒนธรรม" },
+          { value: "school_admin", label: "งานบริหารงานบุคคลทางการศึกษา" },
+          { value: "plan", label: "งานแผนและวิชาการ" },
+        ],
+      },
+      {
+        value: "culture",
+        label: "ส่วนส่งเสริมการศึกษา ศาสนา และวัฒนธรรม",
+        sections: [
+          { value: "activities", label: "งานกิจกรรมเด็กและเยาวชน" },
+          { value: "sports", label: "งานกีฬาและนันทนาการ" },
+        ],
+      },
+    ],
+  },
+  {
+    value: "bureau_waterworks",
+    label: "สำนักการประปา",
+    divisions: [
+      {
+        value: "water_production",
+        label: "ส่วนผลิตน้ำประปา",
+        sections: [
+          { value: "production", label: "งานผลิต" },
+          { value: "quality", label: "งานควบคุมคุณภาพน้ำ" },
+        ],
+      },
+      {
+        value: "water_service",
+        label: "ส่วนบริการและจัดเก็บรายได้",
+        sections: [
+          { value: "service", label: "งานบริการผู้ใช้น้ำ" },
+          { value: "meter", label: "งานจดมาตรและจัดเก็บ" },
+        ],
+      },
+    ],
+  },
+  {
+    value: "div_strategy",
+    label: "กองยุทธศาสตร์และงบประมาณ",
+    divisions: [
+      {
+        value: "strategy_plan",
+        label: "ฝ่ายแผนงานและงบประมาณ",
+        sections: [
+          { value: "planning", label: "งานวิเคราะห์นโยบายและแผน" },
+          { value: "budgeting", label: "งานงบประมาณ" },
+        ],
+      },
+    ],
+  },
+  {
+    value: "div_welfare",
+    label: "กองสวัสดิการสังคม",
+    divisions: [
+      {
+        value: "social_work",
+        label: "ฝ่ายสังคมสงเคราะห์",
+        sections: [
+          { value: "welfare", label: "งานสวัสดิการสังคม" },
+          { value: "community", label: "งานพัฒนาชุมชน" },
+        ],
+      },
+    ],
+  },
+  {
+    value: "div_tax_info",
+    label: "กองสารสนเทศภาษีและทะเบียนทรัพย์สิน",
+    divisions: [
+      {
+        value: "tax_info",
+        label: "ฝ่ายระบบสารสนเทศ",
+        sections: [
+          { value: "data", label: "งานฐานข้อมูล" },
+          { value: "mapping", label: "งานแผนที่ภาษี" },
+        ],
+      },
+    ],
+  },
+  {
+    value: "div_personnel",
+    label: "กองการเจ้าหน้าที่",
+    divisions: [
+      {
+        value: "hr",
+        label: "ฝ่ายบริหารงานบุคคล",
+        sections: [
+          { value: "recruitment", label: "งานสรรหาและบรรจุแต่งตั้ง" },
+          { value: "records", label: "งานทะเบียนประวัติ" },
+        ],
+      },
+    ],
+  },
+  {
+    value: "unit_audit",
+    label: "หน่วยตรวจสอบภายใน",
+    divisions: [
+      {
+        value: "audit",
+        label: "งานตรวจสอบภายใน",
+        sections: [
+          { value: "audit_general", label: "งานตรวจสอบทั่วไป" },
+        ],
+      },
+    ],
+  },
+  {
+    value: "schools",
+    label: "โรงเรียนสังกัดเทศบาล",
+    divisions: [
+      {
+        value: "school_group_1",
+        label: "กลุ่มโรงเรียน 1",
+        sections: [
+          { value: "t1", label: "โรงเรียนเทศบาลวัดไทรใต้" },
+          { value: "t2", label: "โรงเรียนเทศบาลวัดปากน้ำโพใต้" },
+          { value: "t3", label: "โรงเรียนเทศบาลวัดพรหมจริยาวาส" },
+        ],
+      },
+      {
+        value: "school_group_2",
+        label: "กลุ่มโรงเรียน 2",
+        sections: [
+          { value: "t4", label: "โรงเรียนเทศบาลวัดวรนาถบรรพต" },
+          { value: "t5", label: "โรงเรียนเทศบาลวัดช่องคีรีฯ" },
+          { value: "t6", label: "โรงเรียนเทศบาลวัดเขาจอมคีรีฯ" },
+        ],
+      },
+      {
+        value: "school_group_3",
+        label: "กลุ่มโรงเรียน 3",
+        sections: [
+          { value: "t7", label: "โรงเรียนเทศบาลวัดสุคตวราราม" },
+          { value: "t8", label: "โรงเรียนเทศบาลวัดไทรเหนือ" },
+          { value: "t9", label: "โรงเรียนกีฬาเทศบาล(สนามกีฬากลาง)" },
         ],
       },
     ],

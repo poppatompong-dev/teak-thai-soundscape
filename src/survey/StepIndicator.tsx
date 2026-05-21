@@ -2,12 +2,9 @@ import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const STEPS = [
-  "ข้อมูลการสำรวจ",
-  "ข้อมูลพื้นที่",
-  "ระบบเสียงเดิม",
-  "จุดที่เสนอติดตั้ง",
-  "ตรวจสอบทางเทคนิค",
-  "อนุมัติ/ลำดับความสำคัญ",
+  "ข้อมูลสถานที่",
+  "ความต้องการติดตั้ง",
+  "เพื่อตั้งงบประมาณ",
 ];
 
 export const StepIndicator = ({ current }: { current: number }) => {

@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         sans: ['"IBM Plex Sans Thai"', '"Sarabun"', "system-ui", "sans-serif"],
         display: ['"IBM Plex Sans Thai"', '"Sarabun"', "sans-serif"],
+        sarabun: ['"Sarabun"', "sans-serif"],
       },
       backgroundImage: {
         "gradient-hero": "var(--gradient-hero)",

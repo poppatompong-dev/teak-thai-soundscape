@@ -1,0 +1,62 @@
+{
+  "surveys": [
+    {
+      "id": "PA-2026-810185",
+      "date": "21 พ.ค. 2569",
+      "bureau": "bureau_health",
+      "division": "health_promotion",
+      "section": "clinic",
+      "surveyDate": "2026-05-21",
+      "surveyor": "test",
+      "building": "อาคารสำนักงานเทศบาล",
+      "floor": "ชั้น 1",
+      "room": "test",
+      "contactPerson": "test",
+      "phone": "",
+      "problems": [],
+      "problemsOther": "",
+      "speakerType": "ceiling",
+      "speakerTypeOther": "",
+      "proposedCount": "1",
+      "proposedPosition": "",
+      "photoName": "",
+      "reasonForNeed": "test",
+      "beneficiaries": "",
+      "urgency": "medium",
+      "comments": "",
+      "satisfaction": "5"
+    },
+    {
+      "id": "PA-2026-251233",
+      "date": "21 พ.ค. 2569",
+      "bureau": "bureau_waterworks",
+      "division": "water_production",
+      "section": "production",
+      "surveyDate": "2026-05-21",
+      "surveyor": "ff",
+      "building": "อาคารสำนักงานเทศบาล",
+      "floor": "ชั้น 1",
+      "room": "sdf",
+      "contactPerson": "sdf",
+      "phone": "",
+      "problems": [
+        "unclear"
+      ],
+      "problemsOther": "",
+      "speakerType": "horn",
+      "speakerTypeOther": "",
+      "proposedCount": "2",
+      "proposedPosition": "dsfs",
+      "photoName": "",
+      "reasonForNeed": "dsfs",
+      "beneficiaries": "11",
+      "urgency": "low",
+      "comments": "sdf",
+      "satisfaction": "4"
+    }
+  ],
+  "settings": {
+    "isOpen": true,
+    "closeDate": "2026-07-30"
+  }
+}

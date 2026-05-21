@@ -12,14 +12,17 @@ type Ctx = {
 const SurveyCtx = createContext<Ctx | null>(null);
 
 export const SurveyProvider = ({ children }: { children: ReactNode }) => {
-  const [data, setData] = useState<SurveyData>(initialSurvey);
+  const [data, setData] = useState<SurveyData>({
+    ...initialSurvey,
+    surveyDate: new Date().toISOString().slice(0, 10),
+  });
   const [refNumber, setRefNumber] = useState<string | null>(null);
   return (
     <SurveyCtx.Provider
       value={{
         data,
         update: (patch) => setData((d) => ({ ...d, ...patch })),
-        reset: () => setData(initialSurvey),
+        reset: () => setData({ ...initialSurvey, surveyDate: new Date().toISOString().slice(0, 10) }),
         refNumber,
         setRefNumber,
       }}

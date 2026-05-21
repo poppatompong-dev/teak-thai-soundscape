@@ -1,15 +1,12 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Speaker, Save } from "lucide-react";
+import { ArrowLeft, ArrowRight, Speaker, RefreshCcw } from "lucide-react";
 import { StepIndicator, STEPS } from "@/survey/StepIndicator";
 import {
-  Step1Metadata,
-  Step2Area,
-  Step3Current,
-  Step4Proposed,
-  Step5Technical,
-  Step6Approval,
+  Step1Location,
+  Step2Requirement,
+  Step3Budgeting,
 } from "@/survey/Steps";
 import { useSurvey } from "@/survey/SurveyContext";
 import { validateStep } from "@/survey/validation";
@@ -20,10 +17,27 @@ const Survey = () => {
   const [step, setStep] = useState(0);
   const [orgConfirmed, setOrgConfirmed] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { data } = useSurvey();
+  const { data, reset } = useSurvey();
   const navigate = useNavigate();
 
-  if (!orgConfirmed || !data.bureau || !data.division || !data.section) {
+  const [settings, setSettings] = useState({ isOpen: true, loaded: false });
+
+  useEffect(() => {
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+    fetch(`${apiUrl}/settings`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.isOpen !== undefined) setSettings({ isOpen: data.isOpen, loaded: true });
+        else setSettings({ isOpen: true, loaded: true });
+      })
+      .catch(() => setSettings({ isOpen: true, loaded: true }));
+  }, []);
+
+  if (settings.loaded && !settings.isOpen) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (!orgConfirmed || !data.bureau) {
     return <OrgSelect onContinue={() => setOrgConfirmed(true)} />;
   }
 
@@ -50,12 +64,10 @@ const Survey = () => {
 
   const renderStep = () => {
     switch (step) {
-      case 0: return <Step1Metadata errors={errors} />;
-      case 1: return <Step2Area errors={errors} />;
-      case 2: return <Step3Current errors={errors} />;
-      case 3: return <Step4Proposed errors={errors} />;
-      case 4: return <Step5Technical errors={errors} />;
-      case 5: return <Step6Approval errors={errors} />;
+      case 0: return <Step1Location errors={errors} />;
+      case 1: return <Step2Requirement errors={errors} />;
+      case 2: return <Step3Budgeting errors={errors} />;
+      default: return null;
     }
   };
 
@@ -72,8 +84,14 @@ const Survey = () => {
               <div className="text-sm md:text-base font-semibold">จุดติดตั้งเสียงตามสาย</div>
             </div>
           </Link>
-          <Button size="sm" variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white">
-            <Save className="w-4 h-4 mr-1" /> บันทึกร่าง
+          <Button size="sm" variant="outline" onClick={() => {
+            if (confirm("คุณต้องการล้างข้อมูลที่กรอกไว้ทั้งหมดและเริ่มใหม่หรือไม่?")) {
+              reset();
+              setStep(0);
+              setOrgConfirmed(false);
+            }
+          }} className="bg-white/10 border-white/30 text-white hover:bg-red-500/80 hover:border-red-400 hover:text-white transition-colors">
+            <RefreshCcw className="w-4 h-4 mr-1" /> ล้างข้อมูล/เริ่มใหม่
           </Button>
         </div>
         <div className="container mx-auto px-4 pb-6">

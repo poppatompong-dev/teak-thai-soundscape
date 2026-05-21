@@ -19,7 +19,7 @@ export const OrgSelect = ({ onContinue }: { onContinue: () => void }) => {
     [divisions, data.division],
   );
 
-  const canContinue = !!data.bureau && !!data.division && !!data.section;
+  const canContinue = !!data.bureau;
 
   return (
     <div className="min-h-screen bg-background">
@@ -37,7 +37,7 @@ export const OrgSelect = ({ onContinue }: { onContinue: () => void }) => {
         </div>
         <div className="container mx-auto px-4 pb-10 pt-2">
           <h1 className="text-xl md:text-2xl font-semibold mb-1">เลือกหน่วยงานก่อนเริ่มแบบสำรวจ</h1>
-          <p className="text-sm text-white/80">โปรดระบุสำนัก กอง และส่วนของหน่วยงานที่ทำการสำรวจ</p>
+          <p className="text-sm text-white/80">โปรดระบุสำนัก กอง (ฝ่ายและส่วนสามารถข้ามได้หากไม่มี)</p>
         </div>
       </header>
 
@@ -48,13 +48,13 @@ export const OrgSelect = ({ onContinue }: { onContinue: () => void }) => {
             description="ข้อมูลนี้จะใช้กำกับแบบสำรวจและรายงานสรุป"
           >
             <div className="md:col-span-2">
-              <Field label="สำนัก" required>
+              <Field label="หน่วยงานหลัก (สำนัก/กอง)" required>
                 <Select
                   value={data.bureau}
                   onValueChange={(v) => update({ bureau: v, division: "", section: "" })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="เลือกสำนัก" />
+                    <SelectValue placeholder="เลือกหน่วยงานหลัก" />
                   </SelectTrigger>
                   <SelectContent>
                     {ORG_STRUCTURE.map((b) => (
@@ -65,16 +65,17 @@ export const OrgSelect = ({ onContinue }: { onContinue: () => void }) => {
               </Field>
             </div>
             <div className="md:col-span-2">
-              <Field label="กอง" required>
+              <Field label="หน่วยงานย่อย (ส่วน/ฝ่าย) (เลือกได้ถ้ามี)">
                 <Select
                   value={data.division}
-                  onValueChange={(v) => update({ division: v, section: "" })}
+                  onValueChange={(v) => update({ division: v === "none" ? "" : v, section: "" })}
                   disabled={!data.bureau}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={data.bureau ? "เลือกกอง" : "กรุณาเลือกสำนักก่อน"} />
+                    <SelectValue placeholder={data.bureau ? "เลือกหน่วยงานย่อย (ข้ามได้)" : "กรุณาเลือกหน่วยงานหลักก่อน"} />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none">ไม่มี / ไม่ระบุ</SelectItem>
                     {divisions.map((d) => (
                       <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
                     ))}
@@ -83,16 +84,17 @@ export const OrgSelect = ({ onContinue }: { onContinue: () => void }) => {
               </Field>
             </div>
             <div className="md:col-span-2">
-              <Field label="ส่วน" required>
+              <Field label="ระดับปฏิบัติการ (งาน/โรงเรียน) (เลือกได้ถ้ามี)">
                 <Select
                   value={data.section}
-                  onValueChange={(v) => update({ section: v })}
-                  disabled={!data.division}
+                  onValueChange={(v) => update({ section: v === "none" ? "" : v })}
+                  disabled={!data.division && divisions.length > 0}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={data.division ? "เลือกส่วน" : "กรุณาเลือกกองก่อน"} />
+                    <SelectValue placeholder={data.division || divisions.length === 0 ? "เลือกงาน/โรงเรียน (ข้ามได้)" : "กรุณาเลือกหน่วยงานย่อยก่อน"} />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none">ไม่มี / ไม่ระบุ</SelectItem>
                     {sections.map((s) => (
                       <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
                     ))}
@@ -110,10 +112,8 @@ export const OrgSelect = ({ onContinue }: { onContinue: () => void }) => {
                   <div className="text-muted-foreground text-xs mb-0.5">หน่วยงานที่เลือก</div>
                   <div className="text-foreground">
                     {ORG_STRUCTURE.find((b) => b.value === data.bureau)?.label}
-                    {" · "}
-                    {divisions.find((d) => d.value === data.division)?.label}
-                    {" · "}
-                    {sections.find((s) => s.value === data.section)?.label}
+                    {data.division && " · " + divisions.find((d) => d.value === data.division)?.label}
+                    {data.section && " · " + sections.find((s) => s.value === data.section)?.label}
                   </div>
                 </div>
               </div>
