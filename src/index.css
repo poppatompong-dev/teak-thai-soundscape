@@ -43,8 +43,8 @@
 
     --gradient-hero: linear-gradient(135deg, hsl(215 65% 22%) 0%, hsl(200 70% 30%) 55%, hsl(182 64% 42%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 33% 98%) 100%);
-    --shadow-soft: 0 4px 20px -8px hsl(215 40% 14% / 0.12);
-    --shadow-elevated: 0 18px 48px -20px hsl(215 65% 22% / 0.28);
+    --shadow-soft: 0 4px 16px -4px hsl(215 40% 14% / 0.08), 0 2px 4px -2px hsl(215 40% 14% / 0.04);
+    --shadow-elevated: 0 20px 40px -12px hsl(215 65% 22% / 0.2), 0 8px 16px -8px hsl(215 65% 22% / 0.15);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -78,7 +78,7 @@
 
 @layer components {
   .gov-card {
-    @apply rounded-2xl bg-card border border-border/70 shadow-[var(--shadow-soft)];
+    @apply rounded-2xl bg-card border border-border/60 shadow-[var(--shadow-soft)] transition-all duration-300;
   }
   .field-label {
     @apply text-sm font-medium text-foreground mb-1.5 flex items-center gap-1;
@@ -87,9 +87,9 @@
     @apply text-destructive;
   }
   .radio-card {
-    @apply flex items-start gap-3 rounded-xl border border-border bg-card px-4 py-3 cursor-pointer transition hover:border-secondary hover:bg-accent/40;
+    @apply flex items-start gap-3 rounded-xl border border-border bg-card px-4 py-3 cursor-pointer transition-all duration-200 hover:border-secondary/60 hover:bg-secondary/5;
   }
   .radio-card-active {
-    @apply border-secondary bg-accent ring-2 ring-secondary/30;
+    @apply border-secondary bg-secondary/10 ring-1 ring-secondary/30 shadow-sm;
   }
 }

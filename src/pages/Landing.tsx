@@ -57,7 +57,7 @@ const Landing = () => {
       <header className="bg-gradient-hero text-primary-foreground">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center shadow-sm">
               <Speaker className="w-5 h-5" />
             </div>
             <div className="leading-tight">
@@ -69,7 +69,7 @@ const Landing = () => {
 
         <div className="container mx-auto px-4 pt-8 pb-16 md:pt-16 md:pb-24">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-sm font-medium mb-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/10 backdrop-blur-sm text-sm font-medium mb-8 shadow-sm">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
@@ -89,7 +89,7 @@ const Landing = () => {
               {settings.surveyDescription || "ขอเชิญทุกหน่วยงานร่วมแจ้งความต้องการ เพื่อนำไปประกอบการจัดตั้งงบประมาณอย่างเป็นรูปธรรม"}
             </p>
 
-            <div className="bg-white/10 border border-white/20 rounded-xl p-4 mb-8 inline-flex items-center gap-3 backdrop-blur-md">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 mb-8 inline-flex items-center gap-4 backdrop-blur-lg shadow-sm">
               {canSubmit ? (
                 <>
                   <CalendarClock className="w-8 h-8 text-secondary" />
@@ -112,9 +112,9 @@ const Landing = () => {
             <div className="flex flex-col sm:flex-row gap-3">
               {canSubmit ? (
                 <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90 shadow-elevated">
-                  <Link to="/survey">
+                  <Link to="/survey" className="flex items-center">
                     ทำแบบสำรวจทันที (ใช้เวลา 1 นาที)
-                    <ArrowRight className="w-4 h-4 ml-1" />
+                    <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
               ) : (
@@ -140,12 +140,12 @@ const Landing = () => {
           <div className="hidden md:block absolute top-1/2 left-[16%] right-[16%] h-0.5 bg-border -translate-y-1/2 z-0"></div>
           
           {workflowSteps.map((step, i) => (
-            <div key={step.title} className="gov-card p-6 relative z-10 flex flex-col items-center text-center">
-              <div className="w-14 h-14 rounded-full bg-gradient-hero flex items-center justify-center text-primary-foreground mb-5 shadow-elevated border-4 border-background">
-                <step.icon className="w-6 h-6" />
+            <div key={step.title} className="gov-card p-8 relative z-10 flex flex-col items-center text-center hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] hover:border-primary/20 cursor-default">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-hero flex items-center justify-center text-primary-foreground mb-6 shadow-elevated border-[3px] border-background">
+                <step.icon className="w-7 h-7" />
               </div>
-              <h3 className="text-lg text-primary mb-2 font-bold">{step.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+              <h3 className="text-lg text-primary mb-3 font-bold">{step.title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{step.desc}</p>
             </div>
           ))}
         </div>
@@ -155,8 +155,8 @@ const Landing = () => {
             <h3 className="text-xl text-primary mb-2 font-bold">ร่วมยกระดับการให้บริการของเทศบาลไปพร้อมกัน</h3>
             <p className="text-sm text-muted-foreground">แบบฟอร์มนี้เปิดให้เจ้าหน้าที่ทุกส่วนราชการแจ้งความประสงค์ได้ผ่านมือถือและคอมพิวเตอร์</p>
           </div>
-          <Button asChild size="lg" className={canSubmit ? "bg-primary hover:bg-primary-glow text-primary-foreground shadow-elevated whitespace-nowrap" : "bg-muted text-muted-foreground whitespace-nowrap pointer-events-none"}>
-            <Link to={canSubmit ? "/survey" : "#"}>{canSubmit ? "เริ่มแจ้งความต้องการ" : "ปิดรับข้อมูลแล้ว"} {canSubmit && <ArrowRight className="w-4 h-4 ml-2" />}</Link>
+          <Button asChild size="lg" className={canSubmit ? "bg-primary hover:bg-primary-glow text-primary-foreground shadow-elevated whitespace-nowrap group" : "bg-muted text-muted-foreground whitespace-nowrap pointer-events-none"}>
+            <Link to={canSubmit ? "/survey" : "#"}>{canSubmit ? "เริ่มแจ้งความต้องการ" : "ปิดรับข้อมูลแล้ว"} {canSubmit && <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />}</Link>
           </Button>
         </div>
       </section>

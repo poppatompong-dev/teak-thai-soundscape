@@ -199,11 +199,11 @@ const Dashboard = () => {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/" className="text-slate-500 hover:text-slate-800 transition-colors">
+            <Link to="/" className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </Link>
-            <div className="flex items-center gap-2 border-l border-slate-200 pl-4">
-              <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
+            <div className="flex items-center gap-3 border-l border-slate-200 pl-4">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/10">
                 <Activity className="w-4 h-4 text-primary" />
               </div>
               <div>
@@ -267,18 +267,18 @@ const Dashboard = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
           {dashboardStats.map((stat, i) => (
-            <div key={i} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-start justify-between">
+            <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200/70 shadow-sm flex items-start justify-between transition-all hover:shadow-md hover:border-slate-300">
               <div>
-                <p className="text-xs font-medium text-slate-500 mb-1">{stat.label}</p>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-bold text-slate-800">{stat.value}</span>
-                  <span className="text-sm text-slate-500">{stat.unit}</span>
+                <p className="text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">{stat.label}</p>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-3xl font-extrabold text-slate-800 tracking-tight">{stat.value}</span>
+                  <span className="text-sm font-medium text-slate-500">{stat.unit}</span>
                 </div>
               </div>
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${stat.bg}`}>
-                <stat.icon className={`w-5 h-5 ${stat.color}`} />
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${stat.bg}`}>
+                <stat.icon className={`w-6 h-6 ${stat.color}`} />
               </div>
             </div>
           ))}
@@ -354,17 +354,17 @@ const Dashboard = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Ref ID / วันที่</th>
-                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">หน่วยงาน</th>
-                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">สถานที่</th>
-                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">รายละเอียดความต้องการ</th>
-                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">ความเร่งด่วน</th>
-                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">สถานะ</th>
-                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">จัดการ</th>
+                <tr className="bg-slate-50/80 border-b border-slate-200">
+                  <th className="py-4 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Ref ID / วันที่</th>
+                  <th className="py-4 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">หน่วยงาน</th>
+                  <th className="py-4 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">สถานที่</th>
+                  <th className="py-4 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">รายละเอียดความต้องการ</th>
+                  <th className="py-4 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">ความเร่งด่วน</th>
+                  <th className="py-4 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">สถานะ</th>
+                  <th className="py-4 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">จัดการ</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-slate-100">
                 {loading ? (
                   <tr>
                     <td colSpan={6} className="py-10 text-center text-slate-500">
@@ -391,23 +391,23 @@ const Dashboard = () => {
                   </tr>
                 ) : (
                   filteredRequests.map((req) => (
-                    <tr key={req.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-3 px-4">
-                        <div className="text-sm font-medium text-slate-900">{req.id}</div>
+                    <tr key={req.id} className="hover:bg-slate-50/80 transition-colors group">
+                      <td className="py-4 px-5">
+                        <div className="text-sm font-semibold text-slate-900 group-hover:text-primary transition-colors">{req.id}</div>
                         <div className="text-xs text-slate-500">{req.date}</div>
                       </td>
-                      <td className="py-3 px-4 text-sm text-slate-700">{getDeptName(req.bureau, req.division)}</td>
-                      <td className="py-3 px-4 text-sm text-slate-700">{req.building} {req.floor && `(${req.floor})`}</td>
-                      <td className="py-3 px-4 text-sm text-slate-700">{labelFrom(SPEAKER_TYPES, req.speakerType)} จำนวน {req.proposedCount} หน่วย</td>
-                      <td className="py-3 px-4 text-center">
+                      <td className="py-4 px-5 text-sm text-slate-700">{getDeptName(req.bureau, req.division)}</td>
+                      <td className="py-4 px-5 text-sm text-slate-700">{req.building} {req.floor && `(${req.floor})`}</td>
+                      <td className="py-4 px-5 text-sm text-slate-700">{labelFrom(SPEAKER_TYPES, req.speakerType)} จำนวน <span className="font-semibold text-slate-900">{req.proposedCount}</span> หน่วย</td>
+                      <td className="py-4 px-5 text-center">
                         {urgencyBadge(req.urgency)}
                       </td>
-                      <td className="py-3 px-4 text-center">
+                      <td className="py-4 px-5 text-center">
                         {statusBadge(req.status)}
                       </td>
-                      <td className="py-3 px-4 text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" onClick={() => setEditingRequest(req)} className="h-8 w-8 p-0 text-slate-500 hover:text-slate-800">
+                      <td className="py-4 px-5 text-right">
+                        <div className="flex justify-end gap-2 opacity-100 md:opacity-50 md:group-hover:opacity-100 transition-opacity">
+                          <Button variant="outline" size="sm" onClick={() => setEditingRequest(req)} className="h-8 w-8 p-0 text-slate-500 hover:text-primary hover:bg-primary/5 hover:border-primary/20">
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button variant="outline" size="sm" onClick={() => handleDelete(req.id)} className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 border-red-200">

@@ -51,7 +51,7 @@ export const Step2Requirement = ({ errors }: StepProps) => {
             {PROBLEM_OPTIONS.map((p) => {
               const checked = data.problems.includes(p.value);
               return (
-                <label key={p.value} className={`flex items-center gap-3 rounded-xl border px-4 py-3 cursor-pointer transition ${checked ? "border-secondary bg-accent" : "border-border bg-card hover:bg-accent/40"}`}>
+                <label key={p.value} className={`flex items-center gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-all duration-200 ${checked ? "border-secondary bg-secondary/10 ring-1 ring-secondary/30 shadow-sm" : "border-border bg-card hover:border-secondary/60 hover:bg-secondary/5"}`}>
                   <Checkbox checked={checked} onCheckedChange={() => toggleProblem(p.value)} />
                   <span className="text-sm">{p.label}</span>
                 </label>
@@ -92,8 +92,8 @@ export const Step2Requirement = ({ errors }: StepProps) => {
 
       <div className="md:col-span-2">
         <Field label="แนบรูปถ่ายสถานที่ (ถ้ามี)">
-          <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/30 px-4 py-8 cursor-pointer hover:border-secondary hover:bg-accent/30 transition">
-            <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center">
+          <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/30 px-4 py-8 cursor-pointer transition-all duration-200 hover:border-secondary/60 hover:bg-secondary/5">
+            <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
               {data.photoName ? <ImageIcon className="w-6 h-6 text-secondary" /> : <Upload className="w-6 h-6 text-secondary" />}
             </div>
             <span className="text-sm font-medium text-foreground">
