@@ -187,9 +187,9 @@ const Dashboard = () => {
   const uniqueBuildings = new Set(filteredRequests.map(r => r.building)).size;
 
   const dashboardStats = [
-    { label: "จำนวนที่ร้องขอ (ตามการกรอง)", value: filteredRequests.reduce((acc, r) => acc + (parseInt(r.proposedCount) || 0), 0).toString(), unit: "หน่วย", icon: Speaker, color: "text-blue-600", bg: "bg-blue-100" },
-    { label: "อาคาร (ตามการกรอง)", value: uniqueBuildings.toString(), unit: "อาคาร", icon: MapPin, color: "text-emerald-600", bg: "bg-emerald-100" },
-    { label: "ความเร่งด่วนสูง", value: highUrgencyCount.toString(), unit: "รายการ", icon: ShieldAlert, color: "text-red-600", bg: "bg-red-100" },
+    { label: "รายการคำขอทั้งหมด", value: filteredRequests.length.toString(), unit: "รายการ", icon: FileText, color: "text-blue-600", bg: "bg-blue-100" },
+    { label: "รวมจำนวนจุด/หน่วย", value: filteredRequests.reduce((acc, r) => acc + (parseInt(r.proposedCount) || 0), 0).toString(), unit: "จุด", icon: Speaker, color: "text-purple-600", bg: "bg-purple-100" },
+    { label: "อาคารที่เกี่ยวข้อง", value: uniqueBuildings.toString(), unit: "อาคาร", icon: MapPin, color: "text-emerald-600", bg: "bg-emerald-100" },
     { label: "รอดำเนินการ", value: pendingCount.toString(), unit: "รายการ", icon: Clock, color: "text-amber-600", bg: "bg-amber-100" },
   ];
 
