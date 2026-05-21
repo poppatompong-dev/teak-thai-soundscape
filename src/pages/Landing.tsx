@@ -8,7 +8,7 @@ const workflowSteps = [
   { icon: HardHat, title: "2. สำรวจและประเมิน", desc: "เจ้าหน้าที่ลงพื้นที่สำรวจความเหมาะสมและจัดทำประมาณการราคา" },
   { icon: FileText, title: "3. เสนอของบประมาณ", desc: "รวบรวมข้อมูลทั้งหมดเพื่อนำไปบรรจุในร่างงบประมาณรายจ่ายประจำปี" },
 ];
-
+const Landing = () => {
   const [settings, setSettings] = useState({ isOpen: true, closeDate: "2026-07-30" });
 
   useEffect(() => {
