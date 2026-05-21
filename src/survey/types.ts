@@ -1,4 +1,9 @@
 export type SurveyData = {
+  // organization (selected before survey)
+  bureau: string;
+  division: string;
+  section: string;
+
   // metadata
   surveyDate: string;
   surveyor: string;
@@ -57,6 +62,9 @@ export type SurveyData = {
 };
 
 export const initialSurvey: SurveyData = {
+  bureau: "",
+  division: "",
+  section: "",
   surveyDate: new Date().toISOString().slice(0, 10),
   surveyor: "นายสมชาย ใจดี",
   team: "ทีมสำรวจระบบเสียง ก.1",
@@ -135,4 +143,93 @@ export const SPEAKER_TYPES = [
   { value: "horn", label: "ลำโพงฮอร์น" },
   { value: "pendant", label: "ลำโพงแขวน" },
   { value: "other", label: "อื่น ๆ" },
+];
+
+// Organization structure: สำนัก → กอง → ส่วน
+export const ORG_STRUCTURE: {
+  value: string;
+  label: string;
+  divisions: { value: string; label: string; sections: { value: string; label: string }[] }[];
+}[] = [
+  {
+    value: "office_mayor",
+    label: "สำนักปลัดเทศบาล",
+    divisions: [
+      {
+        value: "admin",
+        label: "กองบริหารงานทั่วไป",
+        sections: [
+          { value: "general", label: "ส่วนธุรการ" },
+          { value: "personnel", label: "ส่วนการเจ้าหน้าที่" },
+          { value: "public_service", label: "ส่วนบริการประชาชน" },
+        ],
+      },
+      {
+        value: "policy",
+        label: "กองยุทธศาสตร์และงบประมาณ",
+        sections: [
+          { value: "plan", label: "ส่วนแผนและงบประมาณ" },
+          { value: "research", label: "ส่วนวิจัยและประเมินผล" },
+        ],
+      },
+    ],
+  },
+  {
+    value: "office_finance",
+    label: "สำนักการคลัง",
+    divisions: [
+      {
+        value: "finance",
+        label: "กองคลัง",
+        sections: [
+          { value: "accounting", label: "ส่วนการเงินและบัญชี" },
+          { value: "revenue", label: "ส่วนพัฒนารายได้" },
+          { value: "procurement", label: "ส่วนพัสดุและทรัพย์สิน" },
+        ],
+      },
+    ],
+  },
+  {
+    value: "office_public_works",
+    label: "สำนักการช่าง",
+    divisions: [
+      {
+        value: "engineering",
+        label: "กองช่าง",
+        sections: [
+          { value: "civil", label: "ส่วนวิศวกรรมโยธา" },
+          { value: "electric", label: "ส่วนไฟฟ้าและสื่อสาร" },
+          { value: "maintenance", label: "ส่วนซ่อมบำรุง" },
+        ],
+      },
+    ],
+  },
+  {
+    value: "office_health",
+    label: "สำนักการสาธารณสุขและสิ่งแวดล้อม",
+    divisions: [
+      {
+        value: "health",
+        label: "กองสาธารณสุข",
+        sections: [
+          { value: "promotion", label: "ส่วนส่งเสริมสุขภาพ" },
+          { value: "environment", label: "ส่วนอนามัยสิ่งแวดล้อม" },
+        ],
+      },
+    ],
+  },
+  {
+    value: "office_education",
+    label: "สำนักการศึกษา",
+    divisions: [
+      {
+        value: "education",
+        label: "กองการศึกษา",
+        sections: [
+          { value: "school", label: "ส่วนส่งเสริมการศึกษา" },
+          { value: "culture", label: "ส่วนศาสนาและวัฒนธรรม" },
+        ],
+      },
+    ],
+  },
 ];
