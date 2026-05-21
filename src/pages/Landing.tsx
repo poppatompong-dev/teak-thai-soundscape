@@ -61,8 +61,8 @@ const Landing = () => {
               <Speaker className="w-5 h-5" />
             </div>
             <div className="leading-tight">
-              <div className="text-xs opacity-80">{settings.orgName || "เทศบาล"} · โครงการยกระดับการสื่อสาร</div>
-              <div className="text-sm md:text-base font-semibold">Soundscape Survey</div>
+              <div className="text-xs opacity-80">{settings.orgName || "เทศบาล"}</div>
+              <div className="text-sm md:text-base font-semibold">ระบบสำรวจความต้องการ (Smart Survey)</div>
             </div>
           </div>
         </div>
@@ -77,11 +77,11 @@ const Landing = () => {
               เปิดรับข้อมูล: {new Date(settings.openDate).toLocaleDateString('th-TH', {day: 'numeric', month: 'short'})} - {new Date(settings.closeDate).toLocaleDateString('th-TH', {day: 'numeric', month: 'short', year: 'numeric'})}
             </div>
             
-            <div className="text-emerald-300 font-medium tracking-wide text-sm md:text-base uppercase mb-3">
-              ระบบสารสนเทศเพื่อการตั้งงบประมาณ
+            <div className="text-emerald-300 font-medium tracking-wide text-sm md:text-base uppercase mb-3 flex items-center gap-2">
+              หัวข้อการสำรวจ
             </div>
             
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1] mb-6 text-balance">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-6 text-balance">
               {settings.surveyTitle || "แบบสำรวจความต้องการ (ทั่วไป)"}
             </h1>
             
