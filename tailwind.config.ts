@@ -59,7 +59,9 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        sidebar: {
+        success: "hsl(var(--success))",
+        warning: "hsl(var(--warning))",
+        "primary-glow": "hsl(var(--primary-glow))",
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
           primary: "hsl(var(--sidebar-primary))",
