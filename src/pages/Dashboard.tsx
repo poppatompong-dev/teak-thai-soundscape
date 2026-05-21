@@ -135,8 +135,8 @@ const Dashboard = () => {
       "อาคาร": r.building,
       "ชั้น": r.floor,
       "ห้อง/บริเวณ": r.room,
-      "ประเภทลำโพง": labelFrom(SPEAKER_TYPES, r.speakerType),
-      "จำนวนจุด": parseInt(r.proposedCount) || 0,
+      "ประเภทความต้องการ": labelFrom(SPEAKER_TYPES, r.speakerType),
+      "จำนวน": parseInt(r.proposedCount) || 0,
       "ความเร่งด่วน": r.urgency === 'high' ? 'สูง' : r.urgency === 'medium' ? 'ปานกลาง' : 'ต่ำ',
       "เหตุผลความจำเป็น": r.reasonForNeed,
       "ผู้ประสานงาน": r.contactPerson,
@@ -159,7 +159,7 @@ const Dashboard = () => {
   const uniqueBuildings = new Set(requests.map(r => r.building)).size;
 
   const dashboardStats = [
-    { label: "จำนวนจุดที่ร้องขอทั้งหมด", value: requests.reduce((acc, r) => acc + (parseInt(r.proposedCount) || 0), 0).toString(), unit: "จุด", icon: Speaker, color: "text-blue-600", bg: "bg-blue-100" },
+    { label: "จำนวนที่ร้องขอทั้งหมด", value: requests.reduce((acc, r) => acc + (parseInt(r.proposedCount) || 0), 0).toString(), unit: "หน่วย", icon: Speaker, color: "text-blue-600", bg: "bg-blue-100" },
     { label: "อาคารที่มีการร้องขอ", value: uniqueBuildings.toString(), unit: "อาคาร", icon: MapPin, color: "text-emerald-600", bg: "bg-emerald-100" },
     { label: "ความเร่งด่วนสูง", value: highUrgencyCount.toString(), unit: "รายการ", icon: ShieldAlert, color: "text-red-600", bg: "bg-red-100" },
     { label: "รอดำเนินการ", value: requests.length.toString(), unit: "รายการ", icon: Clock, color: "text-amber-600", bg: "bg-amber-100" },
@@ -303,8 +303,8 @@ const Dashboard = () => {
                 <tr className="bg-slate-50 border-b border-slate-200">
                   <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Ref ID / วันที่</th>
                   <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">หน่วยงาน</th>
-                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">สถานที่ติดตั้ง</th>
-                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">ความต้องการ</th>
+                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">สถานที่</th>
+                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">รายละเอียดความต้องการ</th>
                   <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">ความเร่งด่วน</th>
                   <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">จัดการ</th>
                 </tr>
@@ -332,7 +332,7 @@ const Dashboard = () => {
                       </td>
                       <td className="py-3 px-4 text-sm text-slate-700">{getDeptName(req.bureau, req.division)}</td>
                       <td className="py-3 px-4 text-sm text-slate-700">{req.building} {req.floor && `(${req.floor})`}</td>
-                      <td className="py-3 px-4 text-sm text-slate-700">{labelFrom(SPEAKER_TYPES, req.speakerType)} {req.proposedCount} จุด</td>
+                      <td className="py-3 px-4 text-sm text-slate-700">{labelFrom(SPEAKER_TYPES, req.speakerType)} จำนวน {req.proposedCount} หน่วย</td>
                       <td className="py-3 px-4 text-center">
                         {urgencyBadge(req.urgency)}
                       </td>
@@ -417,7 +417,7 @@ const Dashboard = () => {
                 <Input required value={editingRequest.building} onChange={(e) => setEditingRequest({...editingRequest, building: e.target.value})} />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">จำนวนจุดที่ต้องการ</label>
+                <label className="text-sm font-medium mb-1 block">จำนวนที่ต้องการ</label>
                 <Input type="number" min="1" required value={editingRequest.proposedCount} onChange={(e) => setEditingRequest({...editingRequest, proposedCount: e.target.value})} />
               </div>
               <div>

@@ -44,7 +44,7 @@ export const Step2Requirement = ({ errors }: StepProps) => {
     update({ problems: cur });
   };
   return (
-    <SectionCard title="ความต้องการติดตั้ง" description="รูปแบบของลำโพงและจำนวนที่เสนอติดตั้ง">
+    <SectionCard title="รายละเอียดความต้องการ" description="รูปแบบและจำนวนที่เสนอขอ">
       <div className="md:col-span-2">
         <Field label="สภาพปัญหาเดิม (เลือกได้หลายข้อ)" error={errors.problems}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -65,7 +65,7 @@ export const Step2Requirement = ({ errors }: StepProps) => {
       </div>
 
       <div className="md:col-span-2">
-        <Field label="ประเภทลำโพงที่ต้องการ" error={errors.speakerType}>
+        <Field label="หมวดหมู่/ประเภทที่ต้องการ" error={errors.speakerType}>
           <RadioCardGroup value={data.speakerType} onChange={(v) => update({ speakerType: v })} options={SPEAKER_TYPES} columns={2} />
           {data.speakerType === "other" && (
             <Input className="mt-2" placeholder="ระบุประเภทอื่น ๆ" value={data.speakerTypeOther} onChange={(e) => update({ speakerTypeOther: e.target.value })} />
@@ -75,18 +75,18 @@ export const Step2Requirement = ({ errors }: StepProps) => {
 
       <div className="md:col-span-2">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="จำนวนจุดลำโพงที่เสนอติดตั้ง" required error={errors.proposedCount}>
+          <Field label="จำนวนที่เสนอขอ" required error={errors.proposedCount}>
             <div className="relative">
-              <Input type="number" min={1} value={data.proposedCount} onChange={(e) => update({ proposedCount: e.target.value })} className="pr-12 text-lg font-medium" />
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">จุด</div>
+              <Input type="number" min={1} value={data.proposedCount} onChange={(e) => update({ proposedCount: e.target.value })} className="pr-16 text-lg font-medium" />
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">หน่วย/จุด</div>
             </div>
           </Field>
         </div>
       </div>
 
       <div className="md:col-span-2">
-        <Field label="ตำแหน่งที่เสนอติดตั้ง (ไม่บังคับ)" error={errors.proposedPosition}>
-          <Textarea rows={3} value={data.proposedPosition} onChange={(e) => update({ proposedPosition: e.target.value })} placeholder="อธิบายตำแหน่งติดตั้ง เช่น กลางฝ้าเพดานห้องประชุม, มุมห้องด้านทิศตะวันออก, ริมทางเดิน..." />
+        <Field label="คำอธิบายเพิ่มเติม/สถานที่ติดตั้ง (ไม่บังคับ)" error={errors.proposedPosition}>
+          <Textarea rows={3} value={data.proposedPosition} onChange={(e) => update({ proposedPosition: e.target.value })} placeholder="อธิบายรายละเอียดเพิ่มเติม เช่น ตำแหน่งติดตั้ง, วัตถุประสงค์เฉพาะ..." />
         </Field>
       </div>
 
@@ -114,7 +114,7 @@ export const Step3Budgeting = ({ errors }: StepProps) => {
     <SectionCard title="ข้อมูลเพื่อการตั้งงบประมาณ" description="รายละเอียดเพื่อนำไปประกอบการเขียนโครงการและพิจารณางบประมาณ">
       <div className="md:col-span-2">
         <Field label="เหตุผลความจำเป็นของโครงการ" error={errors.reasonForNeed}>
-          <Textarea rows={4} value={data.reasonForNeed} onChange={(e) => update({ reasonForNeed: e.target.value })} placeholder="อธิบายความสำคัญในการติดตั้งระบบเสียงนี้..." />
+          <Textarea rows={4} value={data.reasonForNeed} onChange={(e) => update({ reasonForNeed: e.target.value })} placeholder="อธิบายความสำคัญและความจำเป็น..." />
         </Field>
       </div>
       <div className="md:col-span-2">

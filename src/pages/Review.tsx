@@ -79,7 +79,7 @@ const Review = () => {
         </div>
         <div className="container mx-auto px-4 pb-8">
           <h1 className="text-2xl md:text-3xl font-semibold">สรุปข้อมูลเพื่อการตั้งงบประมาณ</h1>
-          <p className="text-sm text-white/80 mt-1">โปรดตรวจสอบความถูกต้องของจำนวนจุดและสถานที่ก่อนส่ง</p>
+          <p className="text-sm text-white/80 mt-1">โปรดตรวจสอบความถูกต้องของข้อมูลทั้งหมดก่อนส่ง</p>
         </div>
       </header>
 
@@ -104,7 +104,7 @@ const Review = () => {
           <Row label="ผู้ประสานงาน" value={`${data.contactPerson} · ${data.phone}`} />
         </Block>
 
-        <Block title="ความต้องการติดตั้ง">
+        <Block title="รายละเอียดความต้องการ">
           <Row
             label="สภาพปัญหาเดิม"
             value={
@@ -113,9 +113,9 @@ const Review = () => {
                 : ""
             }
           />
-          <Row label="ประเภทลำโพง" value={`${labelFrom(SPEAKER_TYPES, data.speakerType)}${data.speakerType === "other" ? ` (${data.speakerTypeOther})` : ""}`} />
-          <Row label="จำนวนจุด" value={`${data.proposedCount} จุด`} />
-          <Row label="ตำแหน่งที่เสนอติดตั้ง" value={data.proposedPosition} />
+          <Row label="หมวดหมู่/ประเภทที่ต้องการ" value={`${labelFrom(SPEAKER_TYPES, data.speakerType)}${data.speakerType === "other" ? ` (${data.speakerTypeOther})` : ""}`} />
+          <Row label="จำนวน" value={`${data.proposedCount} หน่วย`} />
+          <Row label="สถานที่/ตำแหน่งติดตั้ง" value={data.proposedPosition} />
           <Row label="รูปภาพสถานที่" value={data.photoName || "ไม่ได้แนบรูปภาพ"} />
         </Block>
 

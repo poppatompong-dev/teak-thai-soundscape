@@ -53,15 +53,43 @@
       "urgency": "low",
       "comments": "sdf",
       "satisfaction": "4"
+    },
+    {
+      "id": "PA-2026-448750",
+      "date": "21 พ.ค. 2569",
+      "bureau": "bureau_works",
+      "division": "engineering",
+      "section": "architecture",
+      "surveyDate": "2026-05-21",
+      "surveyor": "lab",
+      "building": "อาคารสำนักงานเทศบาล",
+      "floor": "ชั้น 1",
+      "room": "lab",
+      "contactPerson": "lab",
+      "phone": "00005555",
+      "problems": [
+        "no_coverage"
+      ],
+      "problemsOther": "",
+      "speakerType": "horn",
+      "speakerTypeOther": "",
+      "proposedCount": "199",
+      "proposedPosition": "lab",
+      "photoName": "",
+      "reasonForNeed": "lab",
+      "beneficiaries": "lab",
+      "urgency": "low",
+      "comments": "lab",
+      "satisfaction": "3"
     }
   ],
   "settings": {
     "isOpen": true,
-    "openDate": "2026-05-01",
-    "closeDate": "2026-07-30",
+    "openDate": "2026-05-21",
+    "closeDate": "2026-05-29",
     "orgName": "เทศบาลนครนครสวรรค์",
-    "surveyTitle": "ร่วมสำรวจความต้องการจุดติดตั้งระบบเสียงตามสาย (PA)",
-    "surveyDescription": "เพื่อให้การแจ้งข่าวสารในอาคารเทศบาลเป็นไปอย่างทั่วถึงและมีประสิทธิภาพ ขอเชิญทุกหน่วยงานร่วมแจ้งความต้องการจุดติดตั้งหรือปรับปรุงระบบเสียงเดิมของคุณ เพื่อนำไปประกอบการจัดตั้งงบประมาณอย่างเป็นรูปธรรม",
+    "surveyTitle": "แบบสำรวจความต้องการ (ทั่วไป)",
+    "surveyDescription": "ขอเชิญทุกหน่วยงานร่วมแจ้งความต้องการ เพื่อนำไปประกอบการจัดตั้งงบประมาณอย่างเป็นรูปธรรม",
     "contactInfo": "ติดต่อ: กองยุทธศาสตร์และงบประมาณ (กลุ่มงานสถิติข้อมูลและสารสนเทศ)\\nโทร. 4212 (ในวันและเวลาราชการ)"
   }
 }

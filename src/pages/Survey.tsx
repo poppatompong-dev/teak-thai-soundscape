@@ -30,7 +30,7 @@ const Survey = () => {
   const { data, reset } = useSurvey();
   const navigate = useNavigate();
 
-  const [settings, setSettings] = useState({ isOpen: true, openDate: "", closeDate: "", loaded: false });
+  const [settings, setSettings] = useState({ isOpen: true, openDate: "", closeDate: "", loaded: false, surveyTitle: "แบบสำรวจความต้องการ" });
 
   useEffect(() => {
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -42,12 +42,13 @@ const Survey = () => {
             isOpen: data.isOpen, 
             openDate: data.openDate || "", 
             closeDate: data.closeDate || "", 
+            surveyTitle: data.surveyTitle || "แบบสำรวจความต้องการ",
             loaded: true 
           });
         }
-        else setSettings({ isOpen: true, openDate: "", closeDate: "", loaded: true });
+        else setSettings({ isOpen: true, openDate: "", closeDate: "", loaded: true, surveyTitle: "แบบสำรวจความต้องการ" });
       })
-      .catch(() => setSettings({ isOpen: true, openDate: "", closeDate: "", loaded: true }));
+      .catch(() => setSettings({ isOpen: true, openDate: "", closeDate: "", loaded: true, surveyTitle: "แบบสำรวจความต้องการ" }));
   }, []);
 
   if (settings.loaded) {
@@ -101,8 +102,8 @@ const Survey = () => {
               <Speaker className="w-5 h-5" />
             </div>
             <div className="leading-tight">
-              <div className="text-xs opacity-80">แบบสำรวจ</div>
-              <div className="text-sm md:text-base font-semibold">จุดติดตั้งเสียงตามสาย</div>
+              <div className="text-xs opacity-80">แพลตฟอร์ม</div>
+              <div className="text-sm md:text-base font-semibold">{settings.surveyTitle}</div>
             </div>
           </Link>
           <Button size="sm" variant="outline" onClick={() => {

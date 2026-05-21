@@ -54,7 +54,7 @@ const Confirmation = () => {
             </div>
             <div className="leading-tight">
               <div className="text-xs opacity-80">ส่งแบบสำรวจสำเร็จ</div>
-              <div className="text-sm md:text-base font-semibold">ระบบสำรวจจุดติดตั้งเสียง</div>
+              <div className="text-sm md:text-base font-semibold">ระบบสำรวจความต้องการ</div>
             </div>
           </Link>
         </div>
@@ -85,7 +85,7 @@ const Confirmation = () => {
             </Button>
             <Button onClick={() => {
               const body = `เลขที่อ้างอิง: ${refNumber}\nสถานที่: ${data.building} ชั้น ${data.floor || "-"} ห้อง ${data.room || "-"}\nผู้สำรวจ: ${data.surveyor}`;
-              window.location.href = `mailto:?subject=แจ้งความประสงค์ติดตั้งเสียงตามสาย [${refNumber}]&body=${encodeURIComponent(body)}`;
+              window.location.href = `mailto:?subject=แจ้งความประสงค์ [${refNumber}]&body=${encodeURIComponent(body)}`;
             }} variant="outline" size="lg">
               <FileText className="w-4 h-4 mr-1" /> ส่งทางอีเมล
             </Button>
@@ -123,7 +123,7 @@ const Confirmation = () => {
           </Button>
           <Button asChild size="lg" variant="outline">
             <Link to="/survey" onClick={() => reset()}>
-              สำรวจจุดถัดไป
+              ทำแบบสำรวจอีกครั้ง
             </Link>
           </Button>
         </div>
@@ -132,7 +132,7 @@ const Confirmation = () => {
       {/* Print Only Template */}
       <div className="hidden print:block p-8 bg-white text-black text-sm">
         <div className="text-center mb-8 border-b border-black pb-4">
-          <h1 className="text-2xl font-bold mb-2">แบบรายงานสำรวจจุดติดตั้งเสียงตามสาย</h1>
+          <h1 className="text-2xl font-bold mb-2">แบบรายงานการสำรวจความต้องการ</h1>
           <p className="text-lg">รหัสอ้างอิง: {refNumber}</p>
         </div>
         
@@ -152,9 +152,9 @@ const Confirmation = () => {
           <section>
             <h2 className="text-lg font-bold border-b border-gray-300 pb-1 mb-3">2. ความต้องการติดตั้ง</h2>
             <div className="space-y-2">
-              <div><strong>จำนวนจุดลำโพงที่เสนอติดตั้ง:</strong> {data.proposedCount} จุด</div>
-              <div><strong>ตำแหน่งที่เสนอติดตั้ง:</strong> {data.proposedPosition || "-"}</div>
-              <div><strong>ประเภทลำโพงที่ต้องการ:</strong> {labelFrom(SPEAKER_TYPES, data.speakerType)} {data.speakerType === "other" && `(${data.speakerTypeOther})`}</div>
+              <div><strong>จำนวนที่เสนอขอ:</strong> {data.proposedCount} หน่วย</div>
+              <div><strong>สถานที่/ตำแหน่งติดตั้ง:</strong> {data.proposedPosition || "-"}</div>
+              <div><strong>หมวดหมู่/ประเภทความต้องการ:</strong> {labelFrom(SPEAKER_TYPES, data.speakerType)} {data.speakerType === "other" && `(${data.speakerTypeOther})`}</div>
               <div>
                 <strong>สภาพปัญหาเดิม:</strong> 
                 {data.problems.length 

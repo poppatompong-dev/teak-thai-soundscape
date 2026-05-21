@@ -62,16 +62,16 @@ export const initialSurvey: SurveyData = {
 };
 
 export const PROBLEM_OPTIONS = [
-  { value: "no_coverage", label: "ไม่มีลำโพงเดิม / เสียงไม่ครอบคลุม" },
-  { value: "unclear", label: "อุปกรณ์เดิมชำรุด / เสียงไม่ชัด" },
+  { value: "no_coverage", label: "ต้องการจัดหาใหม่ (ยังไม่มีอุปกรณ์/ระบบ)" },
+  { value: "unclear", label: "ต้องการทดแทน/ปรับปรุงของเดิมที่ชำรุด" },
   { value: "other", label: "อื่น ๆ" },
 ];
 
 export const SPEAKER_TYPES = [
-  { value: "ceiling", label: "ลำโพงฝังฝ้าเพดาน (สำหรับห้องประชุม/สำนักงาน)" },
-  { value: "wall", label: "ลำโพงติดผนัง (สำหรับโถงทางเดิน/ที่โล่ง)" },
-  { value: "horn", label: "ลำโพงฮอร์น (สำหรับกระจายเสียงระยะไกล)" },
-  { value: "other", label: "อื่น ๆ" },
+  { value: "ceiling", label: "ประเภทที่ 1 (ขนาดเล็ก/มาตรฐาน)" },
+  { value: "wall", label: "ประเภทที่ 2 (ขนาดกลาง)" },
+  { value: "horn", label: "ประเภทที่ 3 (ขนาดใหญ่/พิเศษ)" },
+  { value: "other", label: "อื่น ๆ (โปรดระบุ)" },
 ];
 
 // Organization structure based on nsm.go.th
