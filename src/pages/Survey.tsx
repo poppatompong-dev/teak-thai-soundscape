@@ -12,6 +12,8 @@ import { useSurvey } from "@/survey/SurveyContext";
 import { validateStep } from "@/survey/validation";
 import { toast } from "@/hooks/use-toast";
 import { OrgSelect } from "@/survey/OrgSelect";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const checkIsWithinPeriod = (openStr?: string, closeStr?: string) => {
   if (!openStr || !closeStr) return true;
@@ -33,20 +35,22 @@ const Survey = () => {
   const [settings, setSettings] = useState({ isOpen: true, openDate: "", closeDate: "", loaded: false, surveyTitle: "แบบสำรวจความต้องการ" });
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-    fetch(`${apiUrl}/settings`)
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.isOpen !== undefined) {
-          setSettings({ 
-            isOpen: data.isOpen, 
-            openDate: data.openDate || "", 
-            closeDate: data.closeDate || "", 
-            surveyTitle: data.surveyTitle || "แบบสำรวจความต้องการ",
-            loaded: true 
-          });
+    getDoc(doc(db, "config", "settings"))
+      .then(docSnap => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data) {
+            setSettings({ 
+              isOpen: data.isOpen ?? true, 
+              openDate: data.openDate || "", 
+              closeDate: data.closeDate || "", 
+              surveyTitle: data.surveyTitle || "แบบสำรวจความต้องการ",
+              loaded: true 
+            });
+          }
+        } else {
+          setSettings(prev => ({ ...prev, loaded: true }));
         }
-        else setSettings({ isOpen: true, openDate: "", closeDate: "", loaded: true, surveyTitle: "แบบสำรวจความต้องการ" });
       })
       .catch(() => setSettings({ isOpen: true, openDate: "", closeDate: "", loaded: true, surveyTitle: "แบบสำรวจความต้องการ" }));
   }, []);

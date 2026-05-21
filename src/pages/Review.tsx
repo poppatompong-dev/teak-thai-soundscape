@@ -4,6 +4,8 @@ import { useSurvey } from "@/survey/SurveyContext";
 import { PROBLEM_OPTIONS, SPEAKER_TYPES, ORG_STRUCTURE } from "@/survey/types";
 import { ArrowLeft, Send, Speaker, CheckCircle2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const labelFrom = (list: { value: string; label: string }[], v: string) => list.find((x) => x.value === v)?.label ?? v;
 
@@ -38,19 +40,11 @@ const Review = () => {
       const payload = {
         id: ref,
         date: new Date().toLocaleDateString("th-TH", { day: 'numeric', month: 'short', year: 'numeric' }),
+        status: "pending",
         ...data
       };
 
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-      const res = await fetch(`${apiUrl}/surveys`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (!res.ok) throw new Error("Failed to save");
+      await setDoc(doc(db, "surveys", ref), payload);
 
       setRefNumber(ref);
       toast({ title: "ส่งแบบสำรวจสำเร็จ", description: `เลขอ้างอิง ${ref}` });

@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ORG_STRUCTURE, SPEAKER_TYPES } from "@/survey/types";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const labelFrom = (list: { value: string; label: string }[], v: string) => list.find((x) => x.value === v)?.label ?? v;
 
@@ -17,10 +19,11 @@ const OfficialReport = () => {
   const [requests, setRequests] = useState<any[]>([]);
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-    fetch(`${apiUrl}/surveys`)
-      .then(res => res.json())
-      .then(data => setRequests(data))
+    getDocs(collection(db, "surveys"))
+      .then(snapshot => {
+        const data = snapshot.docs.map(doc => doc.data());
+        setRequests(data);
+      })
       .catch(err => console.error("Failed to fetch surveys", err));
   }, []);
 

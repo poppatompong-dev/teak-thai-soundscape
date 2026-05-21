@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { ORG_STRUCTURE, SPEAKER_TYPES, STATUS_OPTIONS } from "@/survey/types";
 import * as XLSX from "xlsx";
 import { QRCodeCanvas } from "qrcode.react";
+import { collection, doc, getDoc, getDocs, setDoc, deleteDoc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const labelFrom = (list: { value: string; label: string }[], v: string) => list.find((x) => x.value === v)?.label ?? v;
 
@@ -56,43 +58,35 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-    
-    // Fetch surveys
-    fetch(`${apiUrl}/surveys?_t=${Date.now()}`)
-      .then(res => res.json())
-      .then(data => {
+    const fetchData = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "surveys"));
+        const data = querySnapshot.docs.map(doc => doc.data());
         setRequests(data);
         setLoading(false);
-      })
-      .catch(err => {
+      } catch (err) {
         console.error("Failed to fetch surveys", err);
         setLoading(false);
-      });
+      }
 
-    // Fetch settings
-    fetch(`${apiUrl}/settings?_t=${Date.now()}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.isOpen !== undefined) {
-          setSettings(data);
+      try {
+        const docSnap = await getDoc(doc(db, "config", "settings"));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data && data.isOpen !== undefined) setSettings(data as any);
         }
-      })
-      .catch(err => console.error("Failed to fetch settings", err));
+      } catch (err) {
+        console.error("Failed to fetch settings", err);
+      }
+    };
+    fetchData();
   }, []);
 
   const handleUpdateSettings = async (newSettings: any) => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-      const res = await fetch(`${apiUrl}/settings`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newSettings),
-      });
-      if (res.ok) {
-        setSettings(newSettings);
-        toast({ title: "อัปเดตการตั้งค่าระบบเรียบร้อยแล้ว" });
-      }
+      await setDoc(doc(db, "config", "settings"), newSettings);
+      setSettings(newSettings);
+      toast({ title: "อัปเดตการตั้งค่าระบบเรียบร้อยแล้ว" });
     } catch (err) {
       toast({ title: "เกิดข้อผิดพลาดในการบันทึกการตั้งค่า", variant: "destructive" });
     }
@@ -103,8 +97,7 @@ const Dashboard = () => {
   const handleDelete = async (id: string) => {
     if (!confirm(`คุณต้องการลบข้อมูล ${id} ใช่หรือไม่?`)) return;
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-      await fetch(`${apiUrl}/surveys/${id}`, { method: "DELETE" });
+      await deleteDoc(doc(db, "surveys", id));
       setRequests(reqs => reqs.filter(r => r.id !== id));
       toast({ title: "ลบข้อมูลสำเร็จ" });
     } catch (err) {
@@ -115,17 +108,10 @@ const Dashboard = () => {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-      const res = await fetch(`${apiUrl}/surveys/${editingRequest.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editingRequest),
-      });
-      if (res.ok) {
-        setRequests(reqs => reqs.map(r => r.id === editingRequest.id ? editingRequest : r));
-        setEditingRequest(null);
-        toast({ title: "บันทึกข้อมูลสำเร็จ" });
-      }
+      await updateDoc(doc(db, "surveys", editingRequest.id), editingRequest);
+      setRequests(reqs => reqs.map(r => r.id === editingRequest.id ? editingRequest : r));
+      setEditingRequest(null);
+      toast({ title: "บันทึกข้อมูลสำเร็จ" });
     } catch (err) {
       toast({ title: "เกิดข้อผิดพลาด", variant: "destructive" });
     }

@@ -1,5 +1,7 @@
 import { Link, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { useSurvey } from "@/survey/SurveyContext";
 import { CheckCircle2, Download, Printer, Home, FileText, Speaker, BarChart3 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -12,13 +14,13 @@ const labelFrom = (list: { value: string; label: string }[], v: string) => list.
 const Confirmation = () => {
   const { refNumber, data, reset } = useSurvey();
   const [bureauStats, setBureauStats] = useState<{ name: string; count: number }[]>([]);
+  const [status, setStatus] = useState<string>("");
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-        const res = await fetch(`${apiUrl}/surveys`);
-        const surveys = await res.json();
+        const querySnapshot = await getDocs(collection(db, "surveys"));
+        const surveys = querySnapshot.docs.map(doc => doc.data());
         
         const counts: Record<string, number> = {};
         surveys.forEach((s: any) => {
@@ -35,6 +37,11 @@ const Confirmation = () => {
           .sort((a, b) => b.count - a.count);
 
         setBureauStats(stats);
+        
+        const req = surveys.find(r => r.id === refNumber);
+        if (req && req.status) {
+          setStatus(req.status);
+        }
       } catch (err) {
         console.error("Failed to fetch stats", err);
       }

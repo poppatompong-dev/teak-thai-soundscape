@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Speaker, ArrowRight, ClipboardEdit, HardHat, FileText, PhoneCall, CalendarClock, ShieldAlert } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const workflowSteps = [
   { icon: ClipboardEdit, title: "1. แจ้งความต้องการ", desc: "ส่วนราชการกรอกแบบฟอร์มเพื่อระบุสถานที่และจำนวนจุดที่ต้องการติดตั้งหรือปรับปรุง" },
@@ -39,11 +41,12 @@ const Landing = () => {
   });
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-    fetch(`${apiUrl}/settings?_t=${Date.now()}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.isOpen !== undefined) setSettings(data);
+    getDoc(doc(db, "config", "settings"))
+      .then(docSnap => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data && data.isOpen !== undefined) setSettings(data as any);
+        }
       })
       .catch(console.error);
   }, []);
