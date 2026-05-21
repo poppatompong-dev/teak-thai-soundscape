@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Filter, MapPin, Search, Speaker, Activity, Clock, ShieldAlert, LogOut, Loader2, FileText, QrCode, X, Trash2, Edit, Settings } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
-import { ORG_STRUCTURE, SPEAKER_TYPES } from "@/survey/types";
+import { ORG_STRUCTURE, SPEAKER_TYPES, STATUS_OPTIONS } from "@/survey/types";
 import * as XLSX from "xlsx";
 import { QRCodeCanvas } from "qrcode.react";
 
@@ -26,12 +26,24 @@ const urgencyBadge = (urgency: string) => {
   }
 };
 
+const statusBadge = (status: string = "pending") => {
+  const s = STATUS_OPTIONS.find(x => x.value === status);
+  if (!s) return null;
+  return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${s.color} ${s.bg} border border-${s.color.replace('text-', '')}/20`}>{s.label}</span>;
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showQrModal, setShowQrModal] = useState(false);
   const [qrUrl, setQrUrl] = useState(window.location.origin);
+
+  const [filterBureau, setFilterBureau] = useState("all");
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [filterUrgency, setFilterUrgency] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [settings, setSettings] = useState({ 
     isOpen: true, 
@@ -155,14 +167,30 @@ const Dashboard = () => {
     XLSX.writeFile(wb, "Soundscape_Survey_Data.xlsx");
   };
 
-  const highUrgencyCount = requests.filter(r => r.urgency === "high").length;
-  const uniqueBuildings = new Set(requests.map(r => r.building)).size;
+  const filteredRequests = requests.filter(r => {
+    const matchSearch = !searchQuery || 
+      (r.building?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+       getDeptName(r.bureau, r.division)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+       r.id.toLowerCase().includes(searchQuery.toLowerCase()));
+       
+    const matchBureau = filterBureau === "all" || r.bureau === filterBureau;
+    const matchCategory = filterCategory === "all" || r.speakerType === filterCategory;
+    const matchUrgency = filterUrgency === "all" || r.urgency === filterUrgency;
+    const rStatus = r.status || "pending";
+    const matchStatus = filterStatus === "all" || rStatus === filterStatus;
+    
+    return matchSearch && matchBureau && matchCategory && matchUrgency && matchStatus;
+  });
+
+  const highUrgencyCount = filteredRequests.filter(r => r.urgency === "high").length;
+  const pendingCount = filteredRequests.filter(r => (r.status || "pending") === "pending").length;
+  const uniqueBuildings = new Set(filteredRequests.map(r => r.building)).size;
 
   const dashboardStats = [
-    { label: "จำนวนที่ร้องขอทั้งหมด", value: requests.reduce((acc, r) => acc + (parseInt(r.proposedCount) || 0), 0).toString(), unit: "หน่วย", icon: Speaker, color: "text-blue-600", bg: "bg-blue-100" },
-    { label: "อาคารที่มีการร้องขอ", value: uniqueBuildings.toString(), unit: "อาคาร", icon: MapPin, color: "text-emerald-600", bg: "bg-emerald-100" },
+    { label: "จำนวนที่ร้องขอ (ตามการกรอง)", value: filteredRequests.reduce((acc, r) => acc + (parseInt(r.proposedCount) || 0), 0).toString(), unit: "หน่วย", icon: Speaker, color: "text-blue-600", bg: "bg-blue-100" },
+    { label: "อาคาร (ตามการกรอง)", value: uniqueBuildings.toString(), unit: "อาคาร", icon: MapPin, color: "text-emerald-600", bg: "bg-emerald-100" },
     { label: "ความเร่งด่วนสูง", value: highUrgencyCount.toString(), unit: "รายการ", icon: ShieldAlert, color: "text-red-600", bg: "bg-red-100" },
-    { label: "รอดำเนินการ", value: requests.length.toString(), unit: "รายการ", icon: Clock, color: "text-amber-600", bg: "bg-amber-100" },
+    { label: "รอดำเนินการ", value: pendingCount.toString(), unit: "รายการ", icon: Clock, color: "text-amber-600", bg: "bg-amber-100" },
   ];
 
   return (
@@ -289,11 +317,37 @@ const Dashboard = () => {
 
         {/* Data Table Area */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mt-6">
-          <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
-            <h3 className="font-semibold text-slate-800">รายการแจ้งความต้องการล่าสุด</h3>
-            <div className="relative w-full sm:w-64">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <Input placeholder="ค้นหาหน่วยงาน, อาคาร..." className="pl-9 h-9 text-sm bg-white border-slate-300" />
+          <div className="p-4 border-b border-slate-200 bg-slate-50/50">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+              <h3 className="font-semibold text-slate-800">รายการแจ้งความต้องการ</h3>
+              <div className="relative w-full sm:w-72">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="ค้นหาหน่วยงาน, อาคาร, รหัสอ้างอิง..." className="pl-9 h-9 text-sm bg-white border-slate-300 transition-shadow focus-visible:ring-1 focus-visible:ring-primary" />
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2 text-sm text-slate-500 w-full sm:w-auto">
+                <Filter className="w-4 h-4" /> ตัวกรอง:
+              </div>
+              <select className="h-9 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-1 focus:ring-primary" value={filterBureau} onChange={e => setFilterBureau(e.target.value)}>
+                <option value="all">ทุกหน่วยงาน</option>
+                {ORG_STRUCTURE.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+              <select className="h-9 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-1 focus:ring-primary" value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
+                <option value="all">ทุกประเภท</option>
+                {SPEAKER_TYPES.filter(t => t.value !== "other").map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+              <select className="h-9 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-1 focus:ring-primary" value={filterUrgency} onChange={e => setFilterUrgency(e.target.value)}>
+                <option value="all">ทุกความเร่งด่วน</option>
+                <option value="high">สูง</option>
+                <option value="medium">ปานกลาง</option>
+                <option value="low">ต่ำ</option>
+              </select>
+              <select className="h-9 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-1 focus:ring-primary" value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+                <option value="all">ทุกสถานะ</option>
+                {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+              </select>
             </div>
           </div>
           
@@ -306,6 +360,7 @@ const Dashboard = () => {
                   <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">สถานที่</th>
                   <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">รายละเอียดความต้องการ</th>
                   <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">ความเร่งด่วน</th>
+                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">สถานะ</th>
                   <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">จัดการ</th>
                 </tr>
               </thead>
@@ -317,14 +372,25 @@ const Dashboard = () => {
                       กำลังโหลดข้อมูล...
                     </td>
                   </tr>
-                ) : requests.length === 0 ? (
+                ) : filteredRequests.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-10 text-center text-slate-500">
-                      ยังไม่มีข้อมูลการสำรวจ
+                    <td colSpan={7} className="py-16 text-center text-slate-500 bg-slate-50">
+                      <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-200">
+                        <Filter className="w-6 h-6 text-slate-400" />
+                      </div>
+                      <h4 className="text-base font-semibold text-slate-700 mb-1">ไม่พบข้อมูล</h4>
+                      <p className="text-sm">ไม่พบรายการที่ตรงกับเงื่อนไขการค้นหา/ตัวกรองของคุณ</p>
+                      <Button variant="outline" size="sm" className="mt-4" onClick={() => {
+                        setSearchQuery("");
+                        setFilterBureau("all");
+                        setFilterCategory("all");
+                        setFilterUrgency("all");
+                        setFilterStatus("all");
+                      }}>ล้างตัวกรอง</Button>
                     </td>
                   </tr>
                 ) : (
-                  requests.map((req) => (
+                  filteredRequests.map((req) => (
                     <tr key={req.id} className="hover:bg-slate-50/80 transition-colors">
                       <td className="py-3 px-4">
                         <div className="text-sm font-medium text-slate-900">{req.id}</div>
@@ -335,6 +401,9 @@ const Dashboard = () => {
                       <td className="py-3 px-4 text-sm text-slate-700">{labelFrom(SPEAKER_TYPES, req.speakerType)} จำนวน {req.proposedCount} หน่วย</td>
                       <td className="py-3 px-4 text-center">
                         {urgencyBadge(req.urgency)}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {statusBadge(req.status)}
                       </td>
                       <td className="py-3 px-4 text-right">
                         <div className="flex justify-end gap-2">
@@ -355,7 +424,7 @@ const Dashboard = () => {
           
           {/* Pagination */}
           <div className="p-4 border-t border-slate-200 flex items-center justify-between text-sm text-slate-500 bg-slate-50/50">
-            <div>แสดง {requests.length > 0 ? 1 : 0} ถึง {requests.length} จากทั้งหมด {requests.length} รายการ</div>
+            <div>แสดง {filteredRequests.length > 0 ? 1 : 0} ถึง {filteredRequests.length} จากทั้งหมด {filteredRequests.length} รายการ</div>
             <div className="flex gap-1">
               <Button variant="outline" size="sm" disabled className="h-8">ก่อนหน้า</Button>
               <Button variant="outline" size="sm" disabled className="h-8">ถัดไป</Button>
@@ -426,6 +495,12 @@ const Dashboard = () => {
                   <option value="high">สูง</option>
                   <option value="medium">ปานกลาง</option>
                   <option value="low">ต่ำ</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">สถานะดำเนินการ</label>
+                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={editingRequest.status || "pending"} onChange={(e) => setEditingRequest({...editingRequest, status: e.target.value})}>
+                  {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                 </select>
               </div>
               <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white mt-2">บันทึกการแก้ไข</Button>

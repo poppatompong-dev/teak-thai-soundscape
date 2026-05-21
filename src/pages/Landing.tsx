@@ -69,15 +69,23 @@ const Landing = () => {
 
         <div className="container mx-auto px-4 pt-8 pb-16 md:pt-16 md:pb-24">
           <div className="max-w-3xl">
-            <div className="flex flex-wrap items-center gap-2 mb-5">
-              <span className="inline-block text-xs font-medium tracking-wide bg-white/15 backdrop-blur px-3 py-1.5 rounded-full">
-                📣 เปิดรับฟังความคิดเห็นจากทุกส่วนราชการ
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-sm font-medium mb-6">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
               </span>
+              เปิดรับข้อมูล: {new Date(settings.openDate).toLocaleDateString('th-TH', {day: 'numeric', month: 'short'})} - {new Date(settings.closeDate).toLocaleDateString('th-TH', {day: 'numeric', month: 'short', year: 'numeric'})}
             </div>
-            <h1 className="text-3xl md:text-5xl font-bold leading-tight mb-4 whitespace-pre-line">
+            
+            <div className="text-emerald-300 font-medium tracking-wide text-sm md:text-base uppercase mb-3">
+              ระบบสารสนเทศเพื่อการตั้งงบประมาณ
+            </div>
+            
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1] mb-6 text-balance">
               {settings.surveyTitle || "แบบสำรวจความต้องการ (ทั่วไป)"}
             </h1>
-            <p className="text-base md:text-lg text-white/80 mb-6 max-w-2xl leading-relaxed whitespace-pre-line">
+            
+            <p className="text-lg md:text-xl text-white/80 mb-8 max-w-2xl leading-relaxed text-pretty">
               {settings.surveyDescription || "ขอเชิญทุกหน่วยงานร่วมแจ้งความต้องการ เพื่อนำไปประกอบการจัดตั้งงบประมาณอย่างเป็นรูปธรรม"}
             </p>
 

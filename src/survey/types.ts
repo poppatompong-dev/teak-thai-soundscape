@@ -28,6 +28,7 @@ export type SurveyData = {
   urgency: string;
   comments: string;
   satisfaction: string;
+  status: string;
 };
 
 export const initialSurvey: SurveyData = {
@@ -59,12 +60,20 @@ export const initialSurvey: SurveyData = {
   urgency: "medium",
   comments: "",
   satisfaction: "5",
+  status: "pending",
 };
 
 export const PROBLEM_OPTIONS = [
   { value: "no_coverage", label: "ต้องการจัดหาใหม่ (ยังไม่มีอุปกรณ์/ระบบ)" },
   { value: "unclear", label: "ต้องการทดแทน/ปรับปรุงของเดิมที่ชำรุด" },
   { value: "other", label: "อื่น ๆ" },
+];
+
+export const STATUS_OPTIONS = [
+  { value: "pending", label: "รอดำเนินการ", color: "text-amber-600", bg: "bg-amber-100" },
+  { value: "in_progress", label: "กำลังดำเนินการ", color: "text-blue-600", bg: "bg-blue-100" },
+  { value: "completed", label: "เสร็จสิ้น", color: "text-emerald-600", bg: "bg-emerald-100" },
+  { value: "cancelled", label: "ยกเลิก", color: "text-slate-600", bg: "bg-slate-100" },
 ];
 
 export const SPEAKER_TYPES = [
