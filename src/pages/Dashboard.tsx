@@ -59,7 +59,7 @@ const Dashboard = () => {
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
     
     // Fetch surveys
-    fetch(`${apiUrl}/surveys`)
+    fetch(`${apiUrl}/surveys?_t=${Date.now()}`)
       .then(res => res.json())
       .then(data => {
         setRequests(data);
@@ -71,7 +71,7 @@ const Dashboard = () => {
       });
 
     // Fetch settings
-    fetch(`${apiUrl}/settings`)
+    fetch(`${apiUrl}/settings?_t=${Date.now()}`)
       .then(res => res.json())
       .then(data => {
         if (data && data.isOpen !== undefined) {

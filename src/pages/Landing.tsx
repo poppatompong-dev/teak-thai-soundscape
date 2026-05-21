@@ -40,7 +40,7 @@ const Landing = () => {
 
   useEffect(() => {
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-    fetch(`${apiUrl}/settings`)
+    fetch(`${apiUrl}/settings?_t=${Date.now()}`)
       .then(res => res.json())
       .then(data => {
         if (data && data.isOpen !== undefined) setSettings(data);
