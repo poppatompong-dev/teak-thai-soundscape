@@ -13,6 +13,18 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['"IBM Plex Sans Thai"', '"Sarabun"', "system-ui", "sans-serif"],
+        display: ['"IBM Plex Sans Thai"', '"Sarabun"', "sans-serif"],
+      },
+      backgroundImage: {
+        "gradient-hero": "var(--gradient-hero)",
+        "gradient-card": "var(--gradient-card)",
+      },
+      boxShadow: {
+        soft: "var(--shadow-soft)",
+        elevated: "var(--shadow-elevated)",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
