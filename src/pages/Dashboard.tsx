@@ -33,7 +33,15 @@ const Dashboard = () => {
   const [showQrModal, setShowQrModal] = useState(false);
   const [qrUrl, setQrUrl] = useState(window.location.origin);
 
-  const [settings, setSettings] = useState({ isOpen: true, closeDate: "2026-07-30" });
+  const [settings, setSettings] = useState({ 
+    isOpen: true, 
+    openDate: "2026-05-01", 
+    closeDate: "2026-07-30",
+    orgName: "",
+    surveyTitle: "",
+    surveyDescription: "",
+    contactInfo: ""
+  });
 
   useEffect(() => {
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -201,17 +209,32 @@ const Dashboard = () => {
             <p className="text-sm text-slate-500 mt-1">ข้อมูลดึงตรงจากฐานข้อมูลจำลอง (json-server)</p>
           </div>
           
-          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
-              <Settings className="w-4 h-4 text-slate-400" /> สถานะระบบ: 
-              <span className={`px-2 py-0.5 rounded text-xs ${settings.isOpen ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-                {settings.isOpen ? 'เปิดรับข้อมูล' : 'ปิดระบบ'}
-              </span>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-4 w-full lg:w-auto">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full">
+              <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <Settings className="w-4 h-4 text-slate-400" /> สถานะระบบ: 
+                <span className={`px-2 py-0.5 rounded text-xs ${settings.isOpen ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                  {settings.isOpen ? 'เปิดใช้งาน' : 'ปิดระบบ'}
+                </span>
+              </div>
+              <Button size="sm" variant={settings.isOpen ? "destructive" : "default"} className={`h-8 w-full sm:w-auto ${!settings.isOpen ? "bg-emerald-600 hover:bg-emerald-700 text-white" : ""}`} onClick={() => handleUpdateSettings({...settings, isOpen: !settings.isOpen})}>
+                {settings.isOpen ? 'บังคับปิด (Override)' : 'เปิดใช้งาน'}
+              </Button>
             </div>
-            <div className="h-6 w-px bg-slate-200"></div>
-            <Button size="sm" variant={settings.isOpen ? "destructive" : "default"} className={!settings.isOpen ? "bg-emerald-600 hover:bg-emerald-700" : ""} onClick={() => handleUpdateSettings({...settings, isOpen: !settings.isOpen})}>
-              {settings.isOpen ? 'ปิดรับข้อมูล' : 'เปิดรับข้อมูล'}
-            </Button>
+
+            <div className="h-px w-full bg-slate-100"></div>
+            
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 text-sm w-full">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <span className="text-slate-600 whitespace-nowrap">เปิดรับตั้งแต่:</span>
+                <Input type="date" value={settings.openDate || ""} onChange={(e) => setSettings({...settings, openDate: e.target.value})} className="h-8 w-full sm:w-[130px] text-xs" />
+              </div>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <span className="text-slate-600 whitespace-nowrap">ถึง:</span>
+                <Input type="date" value={settings.closeDate || ""} onChange={(e) => setSettings({...settings, closeDate: e.target.value})} className="h-8 w-full sm:w-[130px] text-xs" />
+              </div>
+              <Button size="sm" onClick={() => handleUpdateSettings(settings)} className="h-8 w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-sm mt-2 sm:mt-0">บันทึกเวลา</Button>
+            </div>
           </div>
         </div>
 
@@ -231,6 +254,37 @@ const Dashboard = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* General Settings */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 border-b border-slate-100 pb-3 gap-3">
+            <h3 className="font-semibold text-slate-800">ตั้งค่าข้อมูลแบบสำรวจ (Survey Configuration)</h3>
+            <Button size="sm" onClick={() => handleUpdateSettings(settings)} className="bg-primary hover:bg-primary-glow text-white w-full sm:w-auto">บันทึกข้อมูลแบบสำรวจ</Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-1 block text-slate-700">ชื่อแบบสำรวจ</label>
+              <Input value={settings.surveyTitle || ""} onChange={(e) => setSettings({...settings, surveyTitle: e.target.value})} placeholder="เช่น แบบสำรวจจุดติดตั้งเสียงตามสาย (PA)" />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block text-slate-700">ชื่อหน่วยงาน / องค์กร</label>
+              <Input value={settings.orgName || ""} onChange={(e) => setSettings({...settings, orgName: e.target.value})} placeholder="เช่น เทศบาลนครนครสวรรค์" />
+            </div>
+            <div className="md:col-span-2">
+              <label className="text-sm font-medium mb-1 block text-slate-700">คำอธิบายและวัตถุประสงค์</label>
+              <textarea 
+                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                value={settings.surveyDescription || ""} 
+                onChange={(e) => setSettings({...settings, surveyDescription: e.target.value})}
+                placeholder="อธิบายรายละเอียดหรือแนะนำแบบสำรวจ..."
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="text-sm font-medium mb-1 block text-slate-700">ข้อมูลการติดต่อ (เบอร์โทร, ห้อง)</label>
+              <Input value={settings.contactInfo || ""} onChange={(e) => setSettings({...settings, contactInfo: e.target.value})} placeholder="เช่น ติดต่อ: กองยุทธศาสตร์ โทร. 4212" />
+            </div>
+          </div>
         </div>
 
         {/* Data Table Area */}
@@ -323,9 +377,9 @@ const Dashboard = () => {
             </div>
             <div className="p-6 flex flex-col items-center">
               <div className="w-full mb-6">
-                <label className="text-sm font-medium text-slate-700 mb-1 block">ลิงก์แบบสำรวจ (เช่น Vercel URL)</label>
+                <label className="text-sm font-medium text-slate-700 mb-1 block">ลิงก์แบบสำรวจ</label>
                 <Input value={qrUrl} onChange={(e) => setQrUrl(e.target.value)} placeholder="https://your-vercel-app.vercel.app" />
-                <p className="text-xs text-muted-foreground mt-2">พิมพ์ URL ที่แชร์ให้ผู้ตอบแบบสำรวจ ระบบจะสร้าง QR ทันที</p>
+                <p className="text-xs text-muted-foreground mt-2">ระบบดึง URL ปัจจุบันมาสร้าง QR Code อัตโนมัติ (รองรับลิงก์บน Vercel)</p>
               </div>
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6">
                 <QRCodeCanvas id="survey-qr" value={qrUrl || "https://soundscape-survey.vercel.app"} size={200} level="H" includeMargin={true} />

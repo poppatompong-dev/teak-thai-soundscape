@@ -13,6 +13,16 @@ import { validateStep } from "@/survey/validation";
 import { toast } from "@/hooks/use-toast";
 import { OrgSelect } from "@/survey/OrgSelect";
 
+const checkIsWithinPeriod = (openStr?: string, closeStr?: string) => {
+  if (!openStr || !closeStr) return true;
+  const now = new Date();
+  const openDate = new Date(openStr);
+  openDate.setHours(0, 0, 0, 0);
+  const closeDate = new Date(closeStr);
+  closeDate.setHours(23, 59, 59, 999);
+  return now >= openDate && now <= closeDate;
+};
+
 const Survey = () => {
   const [step, setStep] = useState(0);
   const [orgConfirmed, setOrgConfirmed] = useState(false);
@@ -20,21 +30,32 @@ const Survey = () => {
   const { data, reset } = useSurvey();
   const navigate = useNavigate();
 
-  const [settings, setSettings] = useState({ isOpen: true, loaded: false });
+  const [settings, setSettings] = useState({ isOpen: true, openDate: "", closeDate: "", loaded: false });
 
   useEffect(() => {
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
     fetch(`${apiUrl}/settings`)
       .then(res => res.json())
       .then(data => {
-        if (data && data.isOpen !== undefined) setSettings({ isOpen: data.isOpen, loaded: true });
-        else setSettings({ isOpen: true, loaded: true });
+        if (data && data.isOpen !== undefined) {
+          setSettings({ 
+            isOpen: data.isOpen, 
+            openDate: data.openDate || "", 
+            closeDate: data.closeDate || "", 
+            loaded: true 
+          });
+        }
+        else setSettings({ isOpen: true, openDate: "", closeDate: "", loaded: true });
       })
-      .catch(() => setSettings({ isOpen: true, loaded: true }));
+      .catch(() => setSettings({ isOpen: true, openDate: "", closeDate: "", loaded: true }));
   }, []);
 
-  if (settings.loaded && !settings.isOpen) {
-    return <Navigate to="/" replace />;
+  if (settings.loaded) {
+    const isWithinPeriod = checkIsWithinPeriod(settings.openDate, settings.closeDate);
+    const canSubmit = settings.isOpen && isWithinPeriod;
+    if (!canSubmit) {
+      return <Navigate to="/" replace />;
+    }
   }
 
   if (!orgConfirmed || !data.bureau) {

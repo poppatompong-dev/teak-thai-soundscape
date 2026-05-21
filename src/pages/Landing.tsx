@@ -8,8 +8,35 @@ const workflowSteps = [
   { icon: HardHat, title: "2. สำรวจและประเมิน", desc: "เจ้าหน้าที่ลงพื้นที่สำรวจความเหมาะสมและจัดทำประมาณการราคา" },
   { icon: FileText, title: "3. เสนอของบประมาณ", desc: "รวบรวมข้อมูลทั้งหมดเพื่อนำไปบรรจุในร่างงบประมาณรายจ่ายประจำปี" },
 ];
+
+const formatDateThai = (dateStr?: string) => {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  const thMonth = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  return `${d.getDate()} ${thMonth[d.getMonth()]} ${d.getFullYear() + 543}`;
+};
+
+const checkIsWithinPeriod = (openStr?: string, closeStr?: string) => {
+  if (!openStr || !closeStr) return true;
+  const now = new Date();
+  const openDate = new Date(openStr);
+  openDate.setHours(0, 0, 0, 0);
+  const closeDate = new Date(closeStr);
+  closeDate.setHours(23, 59, 59, 999);
+  return now >= openDate && now <= closeDate;
+};
+
 const Landing = () => {
-  const [settings, setSettings] = useState({ isOpen: true, closeDate: "2026-07-30" });
+  const [settings, setSettings] = useState({ 
+    isOpen: true, 
+    openDate: "2026-05-01", 
+    closeDate: "2026-07-30",
+    orgName: "เทศบาลนครนครสวรรค์",
+    surveyTitle: "ร่วมสำรวจความต้องการจุดติดตั้งระบบเสียงตามสาย (PA)",
+    surveyDescription: "เพื่อให้การแจ้งข่าวสารในอาคารเทศบาลเป็นไปอย่างทั่วถึงและมีประสิทธิภาพ ขอเชิญทุกหน่วยงานร่วมแจ้งความต้องการจุดติดตั้งหรือปรับปรุงระบบเสียงเดิมของคุณ เพื่อนำไปประกอบการจัดตั้งงบประมาณอย่างเป็นรูปธรรม\\n\\n* หมายเหตุ: PA ย่อมาจาก Public Address คือระบบขยายเสียงกระจายข่าวสารสาธารณะที่ครอบคลุมพื้นที่กว้าง",
+    contactInfo: "ติดต่อ: กองยุทธศาสตร์และงบประมาณ (กลุ่มงานสถิติข้อมูลและสารสนเทศ)\\nโทร. 4212 (ในวันและเวลาราชการ)"
+  });
 
   useEffect(() => {
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -21,6 +48,9 @@ const Landing = () => {
       .catch(console.error);
   }, []);
 
+  const isWithinPeriod = checkIsWithinPeriod(settings.openDate, settings.closeDate);
+  const canSubmit = settings.isOpen && isWithinPeriod;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -31,7 +61,7 @@ const Landing = () => {
               <Speaker className="w-5 h-5" />
             </div>
             <div className="leading-tight">
-              <div className="text-xs opacity-80">เทศบาล · โครงการยกระดับการสื่อสาร</div>
+              <div className="text-xs opacity-80">{settings.orgName || "เทศบาล"} · โครงการยกระดับการสื่อสาร</div>
               <div className="text-sm md:text-base font-semibold">Soundscape Survey</div>
             </div>
           </div>
@@ -44,24 +74,20 @@ const Landing = () => {
                 📣 เปิดรับฟังความคิดเห็นจากทุกส่วนราชการ
               </span>
             </div>
-            <h1 className="text-3xl md:text-5xl font-bold leading-tight mb-4">
-              ร่วมสำรวจความต้องการ
-              <br />
-              <span className="text-white/90">จุดติดตั้งระบบเสียงตามสาย (PA)</span>
+            <h1 className="text-3xl md:text-5xl font-bold leading-tight mb-4 whitespace-pre-line">
+              {settings.surveyTitle || "ร่วมสำรวจความต้องการจุดติดตั้งระบบเสียงตามสาย (PA)"}
             </h1>
-            <p className="text-base md:text-lg text-white/80 mb-6 max-w-2xl leading-relaxed">
-              เพื่อให้การแจ้งข่าวสารในอาคารเทศบาลเป็นไปอย่างทั่วถึงและมีประสิทธิภาพ 
-              ขอเชิญทุกหน่วยงานร่วมแจ้งความต้องการจุดติดตั้งหรือปรับปรุงระบบเสียงเดิมของคุณ 
-              เพื่อนำไปประกอบการจัดตั้งงบประมาณอย่างเป็นรูปธรรม
+            <p className="text-base md:text-lg text-white/80 mb-6 max-w-2xl leading-relaxed whitespace-pre-line">
+              {settings.surveyDescription || "เพื่อให้การแจ้งข่าวสารในอาคารเทศบาลเป็นไปอย่างทั่วถึงและมีประสิทธิภาพ ขอเชิญทุกหน่วยงานร่วมแจ้งความต้องการจุดติดตั้งหรือปรับปรุงระบบเสียงเดิมของคุณ เพื่อนำไปประกอบการจัดตั้งงบประมาณอย่างเป็นรูปธรรม"}
             </p>
 
             <div className="bg-white/10 border border-white/20 rounded-xl p-4 mb-8 inline-flex items-center gap-3 backdrop-blur-md">
-              {settings.isOpen ? (
+              {canSubmit ? (
                 <>
                   <CalendarClock className="w-8 h-8 text-secondary" />
                   <div>
                     <div className="text-xs text-white/70">กำหนดเปิดรับข้อมูล</div>
-                    <div className="text-sm font-semibold text-white">ตั้งแต่วันนี้ - {settings.closeDate}</div>
+                    <div className="text-sm font-semibold text-white">{formatDateThai(settings.openDate)} - {formatDateThai(settings.closeDate)}</div>
                   </div>
                 </>
               ) : (
@@ -69,14 +95,14 @@ const Landing = () => {
                   <ShieldAlert className="w-8 h-8 text-red-400" />
                   <div>
                     <div className="text-xs text-white/70">สถานะระบบ</div>
-                    <div className="text-sm font-semibold text-red-100">ปิดรับข้อมูลแบบสำรวจแล้ว</div>
+                    <div className="text-sm font-semibold text-red-100">{!settings.isOpen ? "ปิดรับข้อมูลแบบสำรวจแล้ว (ปิดระบบ)" : "อยู่นอกช่วงเวลาการรับแบบสำรวจ"}</div>
                   </div>
                 </>
               )}
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              {settings.isOpen ? (
+              {canSubmit ? (
                 <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90 shadow-elevated">
                   <Link to="/survey">
                     ทำแบบสำรวจทันที (ใช้เวลา 1 นาที)
@@ -121,8 +147,8 @@ const Landing = () => {
             <h3 className="text-xl text-primary mb-2 font-bold">ร่วมยกระดับการให้บริการของเทศบาลไปพร้อมกัน</h3>
             <p className="text-sm text-muted-foreground">แบบฟอร์มนี้เปิดให้เจ้าหน้าที่ทุกส่วนราชการแจ้งความประสงค์ได้ผ่านมือถือและคอมพิวเตอร์</p>
           </div>
-          <Button asChild size="lg" className={settings.isOpen ? "bg-primary hover:bg-primary-glow text-primary-foreground shadow-elevated whitespace-nowrap" : "bg-muted text-muted-foreground whitespace-nowrap pointer-events-none"}>
-            <Link to={settings.isOpen ? "/survey" : "#"}>{settings.isOpen ? "เริ่มแจ้งความต้องการ" : "ปิดรับข้อมูลแล้ว"} {settings.isOpen && <ArrowRight className="w-4 h-4 ml-2" />}</Link>
+          <Button asChild size="lg" className={canSubmit ? "bg-primary hover:bg-primary-glow text-primary-foreground shadow-elevated whitespace-nowrap" : "bg-muted text-muted-foreground whitespace-nowrap pointer-events-none"}>
+            <Link to={canSubmit ? "/survey" : "#"}>{canSubmit ? "เริ่มแจ้งความต้องการ" : "ปิดรับข้อมูลแล้ว"} {canSubmit && <ArrowRight className="w-4 h-4 ml-2" />}</Link>
           </Button>
         </div>
       </section>
@@ -134,16 +160,15 @@ const Landing = () => {
             <PhoneCall className="w-5 h-5" />
           </div>
           <h3 className="text-base font-bold text-slate-800 mb-2">พบปัญหาการใช้งาน หรือมีข้อสอบถามเพิ่มเติม</h3>
-          <p className="text-sm text-slate-600">
-            ติดต่อ: กองยุทธศาสตร์และงบประมาณ (กลุ่มงานสถิติข้อมูลและสารสนเทศ)<br/>
-            โทร. 4212 (ในวันและเวลาราชการ)
+          <p className="text-sm text-slate-600 whitespace-pre-line">
+            {settings.contactInfo || "ติดต่อ: กองยุทธศาสตร์และงบประมาณ (กลุ่มงานสถิติข้อมูลและสารสนเทศ)\\nโทร. 4212 (ในวันและเวลาราชการ)"}
           </p>
         </div>
       </section>
 
       <footer className="border-t border-border bg-card mt-auto">
         <div className="container mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
-          <div>© {new Date().getFullYear()} สำนักงานเทศบาล · แพลตฟอร์มรับฟังความเห็นเพื่อจัดทำงบประมาณ</div>
+          <div>© {new Date().getFullYear()} {settings.orgName || "สำนักงานเทศบาล"} · แพลตฟอร์มรับฟังความเห็นเพื่อจัดทำงบประมาณ</div>
           <Link to="/login" className="hover:text-primary transition-colors">
             สำหรับผู้ดูแลระบบ
           </Link>
