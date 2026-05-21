@@ -62,6 +62,7 @@ export default {
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
         "primary-glow": "hsl(var(--primary-glow))",
+        sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
           primary: "hsl(var(--sidebar-primary))",
