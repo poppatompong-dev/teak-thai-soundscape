@@ -14,12 +14,18 @@ import {
 import { useSurvey } from "@/survey/SurveyContext";
 import { validateStep } from "@/survey/validation";
 import { toast } from "@/hooks/use-toast";
+import { OrgSelect } from "@/survey/OrgSelect";
 
 const Survey = () => {
   const [step, setStep] = useState(0);
+  const [orgConfirmed, setOrgConfirmed] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { data } = useSurvey();
   const navigate = useNavigate();
+
+  if (!orgConfirmed || !data.bureau || !data.division || !data.section) {
+    return <OrgSelect onContinue={() => setOrgConfirmed(true)} />;
+  }
 
   const next = () => {
     const e = validateStep(step, data);

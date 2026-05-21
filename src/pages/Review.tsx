@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSurvey } from "@/survey/SurveyContext";
-import { AREA_TYPES, PROBLEM_OPTIONS, SPEAKER_TYPES } from "@/survey/types";
+import { AREA_TYPES, PROBLEM_OPTIONS, SPEAKER_TYPES, ORG_STRUCTURE } from "@/survey/types";
 import { ArrowLeft, Send, Speaker, CheckCircle2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -70,6 +70,19 @@ const Review = () => {
       </header>
 
       <main className="container mx-auto px-4 py-6 md:py-8 max-w-5xl space-y-5">
+        {(() => {
+          const b = ORG_STRUCTURE.find((x) => x.value === data.bureau);
+          const d = b?.divisions.find((x) => x.value === data.division);
+          const s = d?.sections.find((x) => x.value === data.section);
+          return (
+            <Block title="หน่วยงาน">
+              <Row label="สำนัก" value={b?.label} />
+              <Row label="กอง" value={d?.label} />
+              <Row label="ส่วน" value={s?.label} />
+            </Block>
+          );
+        })()}
+
         <Block title="ข้อมูลการสำรวจ">
           <Row label="วันที่สำรวจ" value={data.surveyDate} />
           <Row label="ผู้สำรวจ / ทีม" value={`${data.surveyor}${data.team ? " · " + data.team : ""}`} />
