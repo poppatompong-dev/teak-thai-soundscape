@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Field = ({
@@ -19,8 +20,13 @@ export const Field = ({
       {label} {required && <span className="required-mark">*</span>}
     </label>
     {children}
-    {hint && !error && <p className="text-xs text-muted-foreground mt-1">{hint}</p>}
-    {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+    {hint && !error && <p className="text-xs text-muted-foreground mt-1.5">{hint}</p>}
+    {error && (
+      <p className="text-xs text-destructive mt-1.5 flex items-center gap-1.5">
+        <span className="inline-block w-1.5 h-1.5 rounded-full bg-destructive flex-shrink-0" />
+        {error}
+      </p>
+    )}
   </div>
 );
 
@@ -33,12 +39,19 @@ export const SectionCard = ({
   description?: string;
   children: ReactNode;
 }) => (
-  <div className="gov-card p-5 md:p-7">
-    <div className="mb-5">
-      <h2 className="text-lg md:text-xl text-primary">{title}</h2>
-      {description && <p className="text-sm text-muted-foreground mt-1">{description}</p>}
+  <div className="gov-card overflow-hidden">
+    <div className="section-header">
+      <h2 className="text-base md:text-lg font-semibold text-primary flex items-center gap-2.5">
+        <span className="w-[3px] h-[1.15em] bg-secondary rounded-full flex-shrink-0" />
+        {title}
+      </h2>
+      {description && (
+        <p className="text-sm text-muted-foreground mt-1 pl-[15px]">{description}</p>
+      )}
     </div>
-    <div className="grid gap-4 md:grid-cols-2">{children}</div>
+    <div className="p-5 md:p-7">
+      <div className="grid gap-5 md:grid-cols-2">{children}</div>
+    </div>
   </div>
 );
 
@@ -72,15 +85,19 @@ export const RadioCardGroup = <T extends string>({
         >
           <span
             className={cn(
-              "mt-0.5 w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center",
-              active ? "border-secondary" : "border-muted-foreground/40",
+              "mt-0.5 w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center transition-all duration-150",
+              active ? "bg-secondary" : "border-2 border-muted-foreground/30",
             )}
           >
-            {active && <span className="w-2 h-2 rounded-full bg-secondary" />}
+            {active && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
           </span>
           <span>
             <span className="block text-sm font-medium text-foreground">{opt.label}</span>
-            {opt.description && <span className="block text-xs text-muted-foreground mt-0.5">{opt.description}</span>}
+            {opt.description && (
+              <span className="block text-xs text-muted-foreground mt-0.5 leading-snug">
+                {opt.description}
+              </span>
+            )}
           </span>
         </button>
       );

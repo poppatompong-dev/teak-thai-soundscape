@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PROBLEM_OPTIONS, SPEAKER_TYPES } from "./types";
 import { Upload, ImageIcon } from "lucide-react";
 
@@ -20,16 +21,23 @@ export const Step1Location = ({ errors }: StepProps) => {
         <Input value={data.building} onChange={(e) => update({ building: e.target.value })} placeholder="สำนักงานเทศบาล" />
       </Field>
       <Field label="ชั้น (ไม่บังคับ)" error={errors.floor}>
-        <Input value={data.floor} onChange={(e) => update({ floor: e.target.value })} placeholder="ชั้น 1" />
+        <Select value={data.floor} onValueChange={(v) => update({ floor: v === "none" ? "" : v })}>
+          <SelectTrigger>
+            <SelectValue placeholder="เลือกชั้น" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">ไม่ระบุ</SelectItem>
+            {[1, 2, 3, 4, 5].map((n) => (
+              <SelectItem key={n} value={`ชั้น ${n}`}>{`ชั้น ${n}`}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
       <div className="md:col-span-2">
         <Field label="ห้อง/บริเวณที่ต้องการติดตั้ง (ไม่บังคับ)" error={errors.room}>
           <Input value={data.room} onChange={(e) => update({ room: e.target.value })} placeholder="เช่น ห้องประชุมใหญ่ / โถงทางเดิน / ฝ่ายทะเบียนราษฎร" />
         </Field>
       </div>
-      <Field label="ผู้ประสานงานในพื้นที่" required error={errors.contactPerson}>
-        <Input value={data.contactPerson} onChange={(e) => update({ contactPerson: e.target.value })} placeholder="ชื่อ-สกุล" />
-      </Field>
       <Field label="เบอร์โทรติดต่อ (ไม่บังคับ)" error={errors.phone}>
         <Input value={data.phone} onChange={(e) => update({ phone: e.target.value })} placeholder="081-234-5678" />
       </Field>

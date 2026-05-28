@@ -31,6 +31,7 @@ const Survey = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { data, reset } = useSurvey();
   const navigate = useNavigate();
+  const isAdmin = sessionStorage.getItem("isAdmin") === "true";
 
   const [settings, setSettings] = useState({ isOpen: true, openDate: "", closeDate: "", loaded: false, surveyTitle: "แบบสำรวจความต้องการ" });
 
@@ -110,31 +111,38 @@ const Survey = () => {
               <div className="text-sm md:text-base font-semibold">{settings.surveyTitle}</div>
             </div>
           </Link>
-          <Button size="sm" variant="outline" onClick={() => {
-            if (confirm("คุณต้องการล้างข้อมูลที่กรอกไว้ทั้งหมดและเริ่มใหม่หรือไม่?")) {
-              reset();
-              setStep(0);
-              setOrgConfirmed(false);
-            }
-          }} className="bg-white/10 border-white/30 text-white hover:bg-red-500/80 hover:border-red-400 hover:text-white transition-colors">
-            <RefreshCcw className="w-4 h-4 mr-1" /> ล้างข้อมูล/เริ่มใหม่
-          </Button>
+          {isAdmin && (
+            <Button size="sm" variant="outline" onClick={() => {
+              if (confirm("คุณต้องการล้างข้อมูลที่กรอกไว้ทั้งหมดและเริ่มใหม่หรือไม่?")) {
+                reset();
+                setStep(0);
+                setOrgConfirmed(false);
+              }
+            }} className="bg-white/10 border-white/30 text-white hover:bg-red-500/80 hover:border-red-400 hover:text-white transition-colors">
+              <RefreshCcw className="w-4 h-4 mr-1" /> ล้างข้อมูล/เริ่มใหม่
+            </Button>
+          )}
         </div>
-        <div className="container mx-auto px-4 pb-6">
-          <h1 className="text-xl md:text-2xl font-semibold mb-1">ขั้นตอนที่ {step + 1} จาก {STEPS.length} · {STEPS[step]}</h1>
-          <p className="text-sm text-white/80">กรอกข้อมูลให้ครบถ้วน ระบบจะตรวจสอบก่อนไปขั้นตอนถัดไป</p>
+        <div className="container mx-auto px-4 pb-8 pt-1">
+          <div className="inline-flex items-center gap-1.5 text-xs text-white/60 mb-2 font-medium">
+            <span>ขั้นตอน {step + 1}/{STEPS.length}</span>
+          </div>
+          <h1 className="text-xl md:text-2xl font-semibold mb-1">{STEPS[step]}</h1>
+          <p className="text-sm text-white/75">กรอกข้อมูลให้ครบถ้วน ระบบจะตรวจสอบก่อนไปขั้นตอนถัดไป</p>
         </div>
       </header>
 
       <div className="container mx-auto px-4 -mt-3 relative z-10">
-        <div className="gov-card p-4 md:p-5">
+        <div className="gov-card p-4 md:p-6">
           <StepIndicator current={step} />
         </div>
       </div>
 
       <main className="container mx-auto px-4 py-6 md:py-8">
-        <div className="space-y-5 max-w-5xl mx-auto">
-          {renderStep()}
+        <div className="max-w-5xl mx-auto space-y-5">
+          <div key={step} className="step-content space-y-5">
+            {renderStep()}
+          </div>
 
           <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 pt-2">
             <Button variant="outline" onClick={back} disabled={step === 0} size="lg">

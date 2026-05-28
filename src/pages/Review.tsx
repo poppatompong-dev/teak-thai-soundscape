@@ -86,7 +86,7 @@ const Review = () => {
             <Block title="หน่วยงาน">
               <Row label="หน่วยงานหลัก" value={b?.label} />
               <Row label="หน่วยงานย่อย" value={d?.label} />
-              <Row label="ระดับปฏิบัติการ" value={s?.label} />
+              {s?.label && <Row label="ระดับปฏิบัติการ" value={s.label} />}
             </Block>
           );
         })()}
@@ -95,7 +95,7 @@ const Review = () => {
           <Row label="ข้อมูล ณ วันที่" value={data.surveyDate} />
           <Row label="ผู้สำรวจ" value={data.surveyor} />
           <Row label="อาคาร / ชั้น / ห้อง" value={`${data.building} · ${data.floor} · ${data.room}`} />
-          <Row label="ผู้ประสานงาน" value={`${data.contactPerson} · ${data.phone}`} />
+          {data.phone && <Row label="เบอร์โทรติดต่อ" value={data.phone} />}
         </Block>
 
         <Block title="รายละเอียดความต้องการ">

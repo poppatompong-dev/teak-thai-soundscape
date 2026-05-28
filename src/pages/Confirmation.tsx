@@ -42,8 +42,8 @@ const Confirmation = () => {
         if (req && req.status) {
           setStatus(req.status);
         }
-      } catch (err) {
-        console.error("Failed to fetch stats", err);
+      } catch {
+        // stats are non-critical — silently skip
       }
     };
     if (refNumber) fetchStats();
@@ -148,7 +148,6 @@ const Confirmation = () => {
             <h2 className="text-lg font-bold border-b border-gray-300 pb-1 mb-3">1. ข้อมูลสถานที่และผู้ติดต่อ</h2>
             <div className="grid grid-cols-2 gap-4">
               <div><strong>ผู้สำรวจ:</strong> {data.surveyor}</div>
-              <div><strong>ผู้ประสานงาน:</strong> {data.contactPerson}</div>
               <div><strong>เบอร์โทรติดต่อ:</strong> {data.phone || "-"}</div>
               <div><strong>อาคาร:</strong> {data.building}</div>
               <div><strong>ชั้น:</strong> {data.floor || "-"}</div>

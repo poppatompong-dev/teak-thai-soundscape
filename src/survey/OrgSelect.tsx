@@ -83,26 +83,6 @@ export const OrgSelect = ({ onContinue }: { onContinue: () => void }) => {
                 </Select>
               </Field>
             </div>
-            <div className="md:col-span-2">
-              <Field label="ระดับปฏิบัติการ (งาน/โรงเรียน) (เลือกได้ถ้ามี)">
-                <Select
-                  value={data.section}
-                  onValueChange={(v) => update({ section: v === "none" ? "" : v })}
-                  disabled={!data.division && divisions.length > 0}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={data.division || divisions.length === 0 ? "เลือกงาน/โรงเรียน (ข้ามได้)" : "กรุณาเลือกหน่วยงานย่อยก่อน"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">ไม่มี / ไม่ระบุ</SelectItem>
-                    {sections.map((s) => (
-                      <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
-            </div>
-
             {canContinue && (
               <div className="md:col-span-2 rounded-xl bg-accent/60 border border-secondary/30 p-4 flex items-start gap-3">
                 <div className="w-9 h-9 rounded-lg bg-secondary/15 flex items-center justify-center text-secondary flex-shrink-0">

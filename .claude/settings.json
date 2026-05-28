@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git pull *)",
+      "Bash(Select-String -Pattern \"scripts\" -A 10)",
+      "Bash(mkdir -p \"d:/soundscape/.claude/commands\")"
+    ],
+    "additionalDirectories": [
+      "d:\\soundscape\\.claude"
+    ]
+  }
+}

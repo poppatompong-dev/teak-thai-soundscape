@@ -8,7 +8,6 @@ export const validateStep = (step: number, d: SurveyData): Record<string, string
   if (step === 0) {
     req("surveyor", "กรุณากรอกชื่อผู้สำรวจ");
     req("building");
-    req("contactPerson");
     if (d.phone && !/^[0-9\-+\s()]{8,}$/.test(d.phone)) e.phone = "รูปแบบเบอร์โทรไม่ถูกต้อง";
   }
   if (step === 1) {
