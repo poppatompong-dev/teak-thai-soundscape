@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ORG_STRUCTURE, SPEAKER_TYPES } from "@/survey/types";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db, withRetry } from "@/lib/firebase";
-import { formatThaiTime } from "@/survey/surveyUtils";
+import { formatThaiTime, applyFilters, paramsToFilters, describeFilters } from "@/survey/surveyUtils";
 
 const labelFrom = (list: { value: string; label: string }[], v: string) => list.find((x) => x.value === v)?.label ?? v;
 
@@ -28,6 +28,9 @@ const OfficialReport = () => {
   const [requests, setRequests] = useState<any[]>([]);
   const [settings, setSettings] = useState<any>({ orgName: "", surveyTitle: "", openDate: "", closeDate: "" });
   const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  const filters = paramsToFilters(searchParams);
+  const filterNotes = describeFilters(filters);
 
   useEffect(() => {
     withRetry(() => getDocs(collection(db, "surveys")))
@@ -41,18 +44,15 @@ const OfficialReport = () => {
 
   const handlePrint = () => window.print();
 
-  const urgencyRank: Record<string, number> = { high: 0, medium: 1, low: 2 };
-  const sorted = [...requests].sort((a, b) => {
-    const byBureau = bureauName(a.bureau).localeCompare(bureauName(b.bureau), "th");
-    if (byBureau !== 0) return byBureau;
-    return (urgencyRank[a.urgency] ?? 3) - (urgencyRank[b.urgency] ?? 3);
-  });
+  // Apply the SAME filters/sort the admin selected on the dashboard, passed via
+  // the URL query string — so the printed report matches the on-screen view.
+  const rows = applyFilters(requests, filters);
 
-  const totalPoints = requests.reduce((acc, r) => acc + num(r.proposedCount), 0);
+  const totalPoints = rows.reduce((acc, r) => acc + num(r.proposedCount), 0);
 
   const sumBy = (keyFn: (r: any) => string) => {
     const m: Record<string, { count: number; points: number }> = {};
-    requests.forEach((r) => {
+    rows.forEach((r) => {
       const k = keyFn(r);
       m[k] = m[k] || { count: 0, points: 0 };
       m[k].count++;
@@ -71,7 +71,7 @@ const OfficialReport = () => {
   const period = settings.openDate && settings.closeDate
     ? `${thaiDate(settings.openDate)} ถึง ${thaiDate(settings.closeDate)}`
     : "-";
-  const docNo = `กยศ. ${new Date().getFullYear() + 543}/${String(requests.length).padStart(3, "0")}`;
+  const docNo = `กยศ. ${new Date().getFullYear() + 543}/${String(rows.length).padStart(3, "0")}`;
 
   return (
     <div className="min-h-screen bg-slate-200 font-sarabun text-black print:bg-white">
@@ -95,6 +95,7 @@ const OfficialReport = () => {
           </div>
           <div className="text-[20px] font-bold">{orgName}</div>
           <div className="text-[13px] text-slate-600">กองยุทธศาสตร์และงบประมาณ · กลุ่มงานสถิติข้อมูลและสารสนเทศ</div>
+          <div className="text-[12px] text-slate-500">เลขที่ ๑๑๒ ถนนอรรถกวี ตำบลปากน้ำโพ อำเภอเมืองนครสวรรค์ จังหวัดนครสวรรค์ ๖๐๐๐๐ · โทร. ๐-๕๖๒๑-๙๕๕๕</div>
         </div>
 
         {/* ชื่อรายงาน */}
@@ -119,6 +120,13 @@ const OfficialReport = () => {
           </tbody>
         </table>
 
+        {/* หมายเหตุ: รายงานนี้กรองตามเงื่อนไขที่เลือกจากหน้า Dashboard */}
+        {filterNotes.length > 0 && (
+          <div className="border border-slate-400 bg-slate-50 rounded px-3 py-2 mb-4 text-[12.5px] print:bg-white">
+            <span className="font-bold">หมายเหตุ:</span> รายงานนี้แสดงเฉพาะข้อมูลตามเงื่อนไขที่เลือก — {filterNotes.join(" · ")}
+          </div>
+        )}
+
         {loading ? (
           <div className="text-center py-10">กำลังโหลดข้อมูล...</div>
         ) : (
@@ -127,7 +135,7 @@ const OfficialReport = () => {
             <p className="indent-10 mb-4 text-[15px]">
               ตามที่ {orgName} ได้ดำเนินการสำรวจความต้องการ{title}จากส่วนราชการในสังกัด
               เพื่อนำข้อมูลไปประกอบการพิจารณาจัดตั้งงบประมาณรายจ่ายประจำปีงบประมาณ พ.ศ. {fiscalYear} นั้น
-              บัดนี้ การสำรวจได้รวบรวมข้อมูลแล้ว จำนวน <b>{requests.length}</b> รายการ
+              บัดนี้ การสำรวจได้รวบรวมข้อมูลแล้ว จำนวน <b>{rows.length}</b> รายการ
               จาก <b>{Object.keys(byBureau).length}</b> หน่วยงาน รวมจำนวนจุดที่ขอติดตั้งทั้งสิ้น <b>{totalPoints}</b> จุด
               รายละเอียดปรากฏตามตารางด้านล่าง
             </p>
@@ -156,7 +164,7 @@ const OfficialReport = () => {
               <tfoot>
                 <tr className="font-bold bg-slate-100">
                   <td className="border border-slate-700 px-2 py-1.5 text-right" colSpan={2}>รวมทั้งสิ้น</td>
-                  <td className="border border-slate-700 px-2 py-1.5 text-center">{requests.length}</td>
+                  <td className="border border-slate-700 px-2 py-1.5 text-center">{rows.length}</td>
                   <td className="border border-slate-700 px-2 py-1.5 text-center">{totalPoints}</td>
                 </tr>
               </tfoot>
@@ -223,7 +231,7 @@ const OfficialReport = () => {
                 </tr>
               </thead>
               <tbody>
-                {sorted.map((req, i) => (
+                {rows.map((req, i) => (
                   <tr key={req.id} className={i % 2 ? "bg-slate-50" : ""}>
                     <td className="border border-slate-700 px-1 py-1.5 text-center">{i + 1}</td>
                     <td className="border border-slate-700 px-1 py-1.5">{getDeptName(req.bureau, req.division)}</td>
@@ -237,11 +245,11 @@ const OfficialReport = () => {
                     </td>
                   </tr>
                 ))}
-                {requests.length === 0 && (
+                {rows.length === 0 && (
                   <tr><td colSpan={7} className="border border-slate-700 px-2 py-4 text-center">ไม่มีข้อมูลการสำรวจ</td></tr>
                 )}
               </tbody>
-              {requests.length > 0 && (
+              {rows.length > 0 && (
                 <tfoot>
                   <tr className="font-bold bg-slate-100">
                     <td colSpan={4} className="border border-slate-700 px-2 py-1.5 text-right">รวมจำนวนจุดติดตั้งทั้งสิ้น</td>

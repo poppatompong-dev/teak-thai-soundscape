@@ -5,7 +5,7 @@ import { ArrowLeft, Download, Filter, MapPin, Search, Speaker, Activity, Clock, 
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { ORG_STRUCTURE, SPEAKER_TYPES, STATUS_OPTIONS } from "@/survey/types";
-import { isLikelyTest, formatThaiDateTime } from "@/survey/surveyUtils";
+import { isLikelyTest, formatThaiDateTime, applyFilters, filtersToParams, type SurveyFilters } from "@/survey/surveyUtils";
 import * as XLSX from "xlsx";
 import { QRCodeCanvas } from "qrcode.react";
 import { collection, doc, getDoc, getDocs, setDoc, deleteDoc, updateDoc } from "firebase/firestore";
@@ -194,39 +194,16 @@ const Dashboard = () => {
     XLSX.writeFile(wb, `รายงานสรุปแบบสำรวจ_${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
-  const filteredRequests = requests.filter(r => {
-    const matchSearch = !searchQuery || 
-      (r.building?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-       getDeptName(r.bureau, r.division)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-       r.id.toLowerCase().includes(searchQuery.toLowerCase()));
-       
-    const matchBureau = filterBureau === "all" || r.bureau === filterBureau;
-    const matchCategory = filterCategory === "all" || r.speakerType === filterCategory;
-    const matchUrgency = filterUrgency === "all" || r.urgency === filterUrgency;
-    const rStatus = r.status || "pending";
-    const matchStatus = filterStatus === "all" || rStatus === filterStatus;
-    const matchTest = !hideTest || !isLikelyTest(r);
-
-    return matchSearch && matchBureau && matchCategory && matchUrgency && matchStatus && matchTest;
-  });
-
   const testCount = requests.filter(isLikelyTest).length;
 
-  // Apply sorting on top of the filtered set.
-  const urgencyOrder: Record<string, number> = { high: 0, medium: 1, low: 2 };
-  const sortedRequests = [...filteredRequests].sort((a, b) => {
-    const pts = (r: any) => parseInt(r.proposedCount) || 0;
-    const time = (r: any) => (r.createdAt ? new Date(r.createdAt).getTime() : 0);
-    switch (sortKey) {
-      case "oldest": return time(a) - time(b);
-      case "points_desc": return pts(b) - pts(a);
-      case "points_asc": return pts(a) - pts(b);
-      case "urgency": return (urgencyOrder[a.urgency] ?? 3) - (urgencyOrder[b.urgency] ?? 3);
-      case "bureau": return getDeptName(a.bureau, a.division).localeCompare(getDeptName(b.bureau, b.division), "th");
-      case "newest":
-      default: return time(b) - time(a);
-    }
-  });
+  // Single source of truth for filtering+sorting, shared with the printed report.
+  const filters: SurveyFilters = {
+    search: searchQuery, bureau: filterBureau, category: filterCategory,
+    urgency: filterUrgency, status: filterStatus, hideTest, sortKey,
+  };
+  const sortedRequests = applyFilters(requests, filters);
+  // Stat cards reflect exactly what is shown (same filtered set).
+  const filteredRequests = sortedRequests;
 
   const highUrgencyCount = filteredRequests.filter(r => r.urgency === "high").length;
   const pendingCount = filteredRequests.filter(r => (r.status || "pending") === "pending").length;
@@ -263,7 +240,7 @@ const Dashboard = () => {
               <QrCode className="w-4 h-4 mr-2" /> QR Code
             </Button>
             <Button asChild size="sm" variant="outline" className="hidden sm:flex text-slate-600 bg-white border-slate-200 hover:bg-slate-50">
-              <Link to="/admin/report"><FileText className="w-4 h-4 mr-2" /> พิมพ์รายงาน (PDF)</Link>
+              <Link to={`/admin/report${filtersToParams(filters) ? `?${filtersToParams(filters)}` : ""}`}><FileText className="w-4 h-4 mr-2" /> พิมพ์รายงาน (PDF)</Link>
             </Button>
             <Button size="sm" onClick={exportToExcel} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
               <Download className="w-4 h-4 mr-2" /> ส่งออก Excel
