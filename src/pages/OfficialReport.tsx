@@ -71,7 +71,6 @@ const OfficialReport = () => {
   const period = settings.openDate && settings.closeDate
     ? `${thaiDate(settings.openDate)} ถึง ${thaiDate(settings.closeDate)}`
     : "-";
-  const docNo = `กยศ. ${new Date().getFullYear() + 543}/${String(rows.length).padStart(3, "0")}`;
 
   return (
     <div className="min-h-screen bg-slate-200 font-sarabun text-black print:bg-white">
@@ -90,9 +89,8 @@ const OfficialReport = () => {
       <div className="max-w-[210mm] min-h-[297mm] mx-auto bg-white px-[20mm] py-[15mm] shadow-2xl print:shadow-none print:p-[12mm] my-8 print:my-0 text-[15px] leading-relaxed relative">
         {/* ตราและหัวหน่วยงาน */}
         <div className="text-center border-b-2 border-slate-800 pb-3 mb-5">
-          <div className="mx-auto mb-2 w-14 h-14 rounded-full border-2 border-slate-800 flex items-center justify-center text-[10px] leading-tight text-slate-700 font-bold">
-            ตรา<br />หน่วยงาน
-          </div>
+          <img src="/nsm-logo.jpg" alt="ตราเทศบาลนครนครสวรรค์" className="mx-auto mb-2 h-16 w-auto object-contain" />
+
           <div className="text-[20px] font-bold">{orgName}</div>
           <div className="text-[13px] text-slate-600">กองยุทธศาสตร์และงบประมาณ · กลุ่มงานสถิติข้อมูลและสารสนเทศ</div>
           <div className="text-[12px] text-slate-500">เลขที่ ๑๑๒ ถนนอรรถกวี ตำบลปากน้ำโพ อำเภอเมืองนครสวรรค์ จังหวัดนครสวรรค์ ๖๐๐๐๐ · โทร. ๐-๕๖๒๑-๙๕๕๕</div>
@@ -109,7 +107,7 @@ const OfficialReport = () => {
           <tbody>
             <tr>
               <td className="py-0.5 w-32 text-slate-600">เลขที่เอกสาร</td>
-              <td className="py-0.5 font-medium">{docNo}</td>
+              <td className="py-0.5 font-medium text-slate-400">.................................</td>
               <td className="py-0.5 w-28 text-slate-600 text-right">วันที่จัดทำ</td>
               <td className="py-0.5 font-medium text-right w-44">{today}</td>
             </tr>
