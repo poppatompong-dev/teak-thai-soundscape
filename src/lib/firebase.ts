@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,4 +12,11 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+
+// Force long-polling instead of the streaming WebChannel transport.
+// Restrictive networks (e.g. government/corporate proxies and firewalls)
+// often break Firestore's WebChannel, causing 400 errors on the Listen
+// stream and "client is offline". Long-polling tunnels through them.
+export const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+});
