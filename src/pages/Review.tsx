@@ -42,9 +42,12 @@ const Review = () => {
     // Reuse a ref number across retries so a slow/duplicated save can't create
     // two records for the same submission.
     const ref = "PA-" + new Date().getFullYear() + "-" + Math.floor(100000 + Math.random() * 900000);
+    const now = new Date();
     const payload = {
       id: ref,
-      date: new Date().toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" }),
+      date: now.toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" }),
+      // ISO timestamp of submission — used for precise time display & sorting.
+      createdAt: now.toISOString(),
       status: "pending",
       ...data,
     };

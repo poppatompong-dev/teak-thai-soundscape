@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Download, Filter, MapPin, Search, Speaker, Activity, Clock, ShieldAlert, LogOut, Loader2, FileText, QrCode, X, Trash2, Edit, Settings } from "lucide-react";
+import { ArrowLeft, Download, Filter, MapPin, Search, Speaker, Activity, Clock, ShieldAlert, LogOut, Loader2, FileText, QrCode, X, Trash2, Edit, Settings, ArrowDownUp, EyeOff, Eye, FlaskConical } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { ORG_STRUCTURE, SPEAKER_TYPES, STATUS_OPTIONS } from "@/survey/types";
+import { isLikelyTest, formatThaiDateTime } from "@/survey/surveyUtils";
 import * as XLSX from "xlsx";
 import { QRCodeCanvas } from "qrcode.react";
 import { collection, doc, getDoc, getDocs, setDoc, deleteDoc, updateDoc } from "firebase/firestore";
@@ -46,6 +47,8 @@ const Dashboard = () => {
   const [filterUrgency, setFilterUrgency] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [hideTest, setHideTest] = useState(false);
+  const [sortKey, setSortKey] = useState("newest");
 
   const [settings, setSettings] = useState({ 
     isOpen: true, 
@@ -152,7 +155,7 @@ const Dashboard = () => {
     const rawData = data.map((r, i) => ({
       "ลำดับ": i + 1,
       "รหัสอ้างอิง": r.id,
-      "วันที่": r.date,
+      "วันเวลาที่ตอบ": formatThaiDateTime(r),
       "หน่วยงานหลัก": ORG_STRUCTURE.find(x => x.value === r.bureau)?.label || r.bureau,
       "หน่วยงานย่อย": getDeptName(r.bureau, r.division),
       "ระดับปฏิบัติการ": r.section || "-",
@@ -202,8 +205,27 @@ const Dashboard = () => {
     const matchUrgency = filterUrgency === "all" || r.urgency === filterUrgency;
     const rStatus = r.status || "pending";
     const matchStatus = filterStatus === "all" || rStatus === filterStatus;
-    
-    return matchSearch && matchBureau && matchCategory && matchUrgency && matchStatus;
+    const matchTest = !hideTest || !isLikelyTest(r);
+
+    return matchSearch && matchBureau && matchCategory && matchUrgency && matchStatus && matchTest;
+  });
+
+  const testCount = requests.filter(isLikelyTest).length;
+
+  // Apply sorting on top of the filtered set.
+  const urgencyOrder: Record<string, number> = { high: 0, medium: 1, low: 2 };
+  const sortedRequests = [...filteredRequests].sort((a, b) => {
+    const pts = (r: any) => parseInt(r.proposedCount) || 0;
+    const time = (r: any) => (r.createdAt ? new Date(r.createdAt).getTime() : 0);
+    switch (sortKey) {
+      case "oldest": return time(a) - time(b);
+      case "points_desc": return pts(b) - pts(a);
+      case "points_asc": return pts(a) - pts(b);
+      case "urgency": return (urgencyOrder[a.urgency] ?? 3) - (urgencyOrder[b.urgency] ?? 3);
+      case "bureau": return getDeptName(a.bureau, a.division).localeCompare(getDeptName(b.bureau, b.division), "th");
+      case "newest":
+      default: return time(b) - time(a);
+    }
   });
 
   const highUrgencyCount = filteredRequests.filter(r => r.urgency === "high").length;
@@ -372,6 +394,32 @@ const Dashboard = () => {
                 <option value="all">ทุกสถานะ</option>
                 {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
+
+              {/* Sort */}
+              <div className="flex items-center gap-1.5">
+                <ArrowDownUp className="w-4 h-4 text-slate-400" />
+                <select className="h-9 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-1 focus:ring-primary" value={sortKey} onChange={e => setSortKey(e.target.value)}>
+                  <option value="newest">เรียง: ใหม่สุดก่อน</option>
+                  <option value="oldest">เรียง: เก่าสุดก่อน</option>
+                  <option value="points_desc">เรียง: จำนวนจุด (มาก→น้อย)</option>
+                  <option value="points_asc">เรียง: จำนวนจุด (น้อย→มาก)</option>
+                  <option value="urgency">เรียง: ความเร่งด่วน</option>
+                  <option value="bureau">เรียง: หน่วยงาน (ก-ฮ)</option>
+                </select>
+              </div>
+
+              {/* Hide test data */}
+              <Button
+                size="sm"
+                variant={hideTest ? "default" : "outline"}
+                onClick={() => setHideTest(v => !v)}
+                className={`h-9 ${hideTest ? "bg-slate-700 hover:bg-slate-800 text-white" : "border-slate-300 text-slate-600"}`}
+                title="ซ่อน/แสดงข้อมูลที่ระบบสันนิษฐานว่าเป็นข้อมูลทดสอบ"
+              >
+                {hideTest ? <Eye className="w-4 h-4 mr-1.5" /> : <EyeOff className="w-4 h-4 mr-1.5" />}
+                {hideTest ? "แสดงข้อมูลทดสอบ" : "ซ่อนข้อมูลทดสอบ"}
+                {testCount > 0 && <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-semibold">{testCount}</span>}
+              </Button>
             </div>
           </div>
           
@@ -379,7 +427,7 @@ const Dashboard = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/80 border-b border-slate-200">
-                  <th className="py-4 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Ref ID / วันที่</th>
+                  <th className="py-4 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Ref ID / วันเวลาที่ตอบ</th>
                   <th className="py-4 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">หน่วยงาน</th>
                   <th className="py-4 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">สถานที่</th>
                   <th className="py-4 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">รายละเอียดความต้องการ</th>
@@ -391,12 +439,12 @@ const Dashboard = () => {
               <tbody className="divide-y divide-slate-100">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="py-10 text-center text-slate-500">
+                    <td colSpan={7} className="py-10 text-center text-slate-500">
                       <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-primary" />
                       กำลังโหลดข้อมูล...
                     </td>
                   </tr>
-                ) : filteredRequests.length === 0 ? (
+                ) : sortedRequests.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="py-16 text-center text-slate-500 bg-slate-50">
                       <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-200">
@@ -414,11 +462,18 @@ const Dashboard = () => {
                     </td>
                   </tr>
                 ) : (
-                  filteredRequests.map((req) => (
+                  sortedRequests.map((req) => (
                     <tr key={req.id} className="hover:bg-slate-50/80 transition-colors group">
                       <td className="py-4 px-5">
-                        <div className="text-sm font-semibold text-slate-900 group-hover:text-primary transition-colors">{req.id}</div>
-                        <div className="text-xs text-slate-500">{req.date}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-slate-900 group-hover:text-primary transition-colors">{req.id}</span>
+                          {isLikelyTest(req) && (
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-orange-100 text-orange-700 border border-orange-200" title="ระบบสันนิษฐานว่าเป็นข้อมูลทดสอบ">
+                              <FlaskConical className="w-3 h-3" /> ทดสอบ
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-slate-500">{formatThaiDateTime(req)}</div>
                       </td>
                       <td className="py-4 px-5 text-sm text-slate-700">{getDeptName(req.bureau, req.division)}</td>
                       <td className="py-4 px-5 text-sm text-slate-700">{req.building} {req.floor && `(${req.floor})`}</td>
@@ -441,7 +496,7 @@ const Dashboard = () => {
                       </td>
                     </tr>
                   ))
-                ).reverse()}
+                )}
               </tbody>
             </table>
           </div>
