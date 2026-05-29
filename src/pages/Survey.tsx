@@ -13,7 +13,7 @@ import { validateStep } from "@/survey/validation";
 import { toast } from "@/hooks/use-toast";
 import { OrgSelect } from "@/survey/OrgSelect";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db, withRetry } from "@/lib/firebase";
 
 const checkIsWithinPeriod = (openStr?: string, closeStr?: string) => {
   if (!openStr || !closeStr) return true;
@@ -36,7 +36,7 @@ const Survey = () => {
   const [settings, setSettings] = useState({ isOpen: true, openDate: "", closeDate: "", loaded: false, surveyTitle: "แบบสำรวจความต้องการ" });
 
   useEffect(() => {
-    getDoc(doc(db, "config", "settings"))
+    withRetry(() => getDoc(doc(db, "config", "settings")))
       .then(docSnap => {
         if (docSnap.exists()) {
           const data = docSnap.data();

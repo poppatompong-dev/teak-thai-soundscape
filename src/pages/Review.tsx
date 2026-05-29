@@ -2,10 +2,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSurvey } from "@/survey/SurveyContext";
 import { PROBLEM_OPTIONS, SPEAKER_TYPES, ORG_STRUCTURE } from "@/survey/types";
-import { ArrowLeft, Send, Speaker, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Send, Speaker, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db, withRetry } from "@/lib/firebase";
 
 const labelFrom = (list: { value: string; label: string }[], v: string) => list.find((x) => x.value === v)?.label ?? v;
 
@@ -32,25 +33,50 @@ const dict = {
 const Review = () => {
   const { data, setRefNumber } = useSurvey();
   const navigate = useNavigate();
+  const [submitting, setSubmitting] = useState(false);
 
   const submit = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+
+    // Reuse a ref number across retries so a slow/duplicated save can't create
+    // two records for the same submission.
     const ref = "PA-" + new Date().getFullYear() + "-" + Math.floor(100000 + Math.random() * 900000);
-    
+    const payload = {
+      id: ref,
+      date: new Date().toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" }),
+      status: "pending",
+      ...data,
+    };
+
+    // Keep a copy locally until we confirm the server accepted it, so an
+    // intermittent connection can't silently lose the submission.
     try {
-      const payload = {
-        id: ref,
-        date: new Date().toLocaleDateString("th-TH", { day: 'numeric', month: 'short', year: 'numeric' }),
-        status: "pending",
-        ...data
-      };
+      localStorage.setItem("pending-submission", JSON.stringify(payload));
+    } catch {
+      /* ignore */
+    }
 
-      await setDoc(doc(db, "surveys", ref), payload);
+    try {
+      // Retry automatically — the connection to Firestore can be flaky.
+      await withRetry(() => setDoc(doc(db, "surveys", ref), payload));
 
+      try {
+        localStorage.removeItem("pending-submission");
+      } catch {
+        /* ignore */
+      }
       setRefNumber(ref);
       toast({ title: "ส่งแบบสำรวจสำเร็จ", description: `เลขอ้างอิง ${ref}` });
       navigate("/confirmation");
     } catch (err) {
-      toast({ title: "เกิดข้อผิดพลาด", description: "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง", variant: "destructive" });
+      toast({
+        title: "ส่งข้อมูลไม่สำเร็จ (เครือข่ายไม่เสถียร)",
+        description: "ข้อมูลของท่านถูกเก็บไว้ในเครื่องแล้ว ไม่หาย — กรุณากด 'ส่งข้อมูลสรุป' อีกครั้งโดยไม่ต้องกรอกใหม่",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -125,8 +151,12 @@ const Review = () => {
           <Button variant="outline" size="lg" onClick={() => navigate("/survey")}>
             <ArrowLeft className="w-4 h-4 mr-1" /> กลับไปแก้ไข
           </Button>
-          <Button size="lg" onClick={submit} className="bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-elevated">
-            <Send className="w-4 h-4 mr-1" /> ส่งข้อมูลสรุป
+          <Button size="lg" onClick={submit} disabled={submitting} className="bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-elevated">
+            {submitting ? (
+              <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> กำลังส่ง...</>
+            ) : (
+              <><Send className="w-4 h-4 mr-1" /> ส่งข้อมูลสรุป</>
+            )}
           </Button>
         </div>
       </main>

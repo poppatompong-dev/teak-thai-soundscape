@@ -20,3 +20,21 @@ const app = initializeApp(firebaseConfig);
 export const db = initializeFirestore(app, {
   experimentalForceLongPolling: true,
 });
+
+/**
+ * Retry a Firestore operation with exponential-ish backoff. The connection to
+ * Firestore can be intermittent on unstable networks, so a transient failure
+ * is often resolved by simply trying again a moment later.
+ */
+export async function withRetry<T>(fn: () => Promise<T>, tries = 5, delayMs = 1200): Promise<T> {
+  let lastErr: unknown;
+  for (let i = 1; i <= tries; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (i < tries) await new Promise((r) => setTimeout(r, delayMs * i));
+    }
+  }
+  throw lastErr;
+}

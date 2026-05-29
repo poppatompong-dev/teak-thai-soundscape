@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Speaker, ArrowRight, ClipboardEdit, HardHat, FileText, PhoneCall, CalendarClock, ShieldAlert } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db, withRetry } from "@/lib/firebase";
 
 const workflowSteps = [
   { icon: ClipboardEdit, title: "1. แจ้งความต้องการ", desc: "ส่วนราชการกรอกแบบฟอร์มเพื่อระบุสถานที่และจำนวนจุดที่ต้องการติดตั้งหรือปรับปรุง" },
@@ -41,7 +41,7 @@ const Landing = () => {
   });
 
   useEffect(() => {
-    getDoc(doc(db, "config", "settings"))
+    withRetry(() => getDoc(doc(db, "config", "settings")))
       .then(docSnap => {
         if (docSnap.exists()) {
           const data = docSnap.data();

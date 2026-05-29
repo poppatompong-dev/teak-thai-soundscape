@@ -8,7 +8,7 @@ import { ORG_STRUCTURE, SPEAKER_TYPES, STATUS_OPTIONS } from "@/survey/types";
 import * as XLSX from "xlsx";
 import { QRCodeCanvas } from "qrcode.react";
 import { collection, doc, getDoc, getDocs, setDoc, deleteDoc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db, withRetry } from "@/lib/firebase";
 
 const labelFrom = (list: { value: string; label: string }[], v: string) => list.find((x) => x.value === v)?.label ?? v;
 
@@ -60,7 +60,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "surveys"));
+        const querySnapshot = await withRetry(() => getDocs(collection(db, "surveys")));
         const data = querySnapshot.docs.map(doc => doc.data());
         setRequests(data);
         setLoading(false);
@@ -70,7 +70,7 @@ const Dashboard = () => {
       }
 
       try {
-        const docSnap = await getDoc(doc(db, "config", "settings"));
+        const docSnap = await withRetry(() => getDoc(doc(db, "config", "settings")));
         if (docSnap.exists()) {
           const data = docSnap.data();
           if (data && data.isOpen !== undefined) setSettings(data as any);
@@ -123,8 +123,34 @@ const Dashboard = () => {
   };
 
   const exportToExcel = () => {
-    // Sheet 1: Raw Data
-    const rawData = requests.map(r => ({
+    const data = filteredRequests;
+    const pts = (r: any) => parseInt(r.proposedCount) || 0;
+    const urgencyTH = (u: string) => (u === "high" ? "สูง" : u === "medium" ? "ปานกลาง" : "ต่ำ");
+    const wb = XLSX.utils.book_new();
+
+    // ชีต 0: สรุปผู้บริหาร
+    const totalPoints = data.reduce((a, r) => a + pts(r), 0);
+    const bureaus = new Set(data.map(r => r.bureau)).size;
+    const exec = [
+      ["รายงานสรุปผลการสำรวจความต้องการ"],
+      [settings.surveyTitle || ""],
+      [settings.orgName || ""],
+      [],
+      ["ออกรายงานเมื่อ", new Date().toLocaleString("th-TH")],
+      [],
+      ["จำนวนคำขอทั้งหมด", `${data.length} รายการ`],
+      ["รวมจุดที่ขอติดตั้ง", `${totalPoints} จุด`],
+      ["จำนวนหน่วยงานที่แจ้ง", `${bureaus} หน่วยงาน`],
+      ["รายการด่วนมาก (สูง)", `${data.filter(r => r.urgency === "high").length} รายการ`],
+      ["รอดำเนินการ", `${data.filter(r => (r.status || "pending") === "pending").length} รายการ`],
+    ];
+    const wsE = XLSX.utils.aoa_to_sheet(exec);
+    wsE["!cols"] = [{ wch: 30 }, { wch: 48 }];
+    XLSX.utils.book_append_sheet(wb, wsE, "0.สรุปผู้บริหาร");
+
+    // ชีต 1: ข้อมูลดิบทั้งหมด
+    const rawData = data.map((r, i) => ({
+      "ลำดับ": i + 1,
       "รหัสอ้างอิง": r.id,
       "วันที่": r.date,
       "หน่วยงานหลัก": ORG_STRUCTURE.find(x => x.value === r.bureau)?.label || r.bureau,
@@ -134,23 +160,35 @@ const Dashboard = () => {
       "ชั้น": r.floor,
       "ห้อง/บริเวณ": r.room,
       "ประเภทความต้องการ": labelFrom(SPEAKER_TYPES, r.speakerType),
-      "จำนวน": parseInt(r.proposedCount) || 0,
-      "ความเร่งด่วน": r.urgency === 'high' ? 'สูง' : r.urgency === 'medium' ? 'ปานกลาง' : 'ต่ำ',
+      "จำนวน (จุด)": pts(r),
+      "ความเร่งด่วน": urgencyTH(r.urgency),
+      "สถานะ": labelFrom(STATUS_OPTIONS, r.status || "pending"),
       "เหตุผลความจำเป็น": r.reasonForNeed,
-      "ผู้ประสานงาน": r.contactPerson,
-      "เบอร์โทรติดต่อ": r.phone
+      "ผู้ได้รับประโยชน์": r.beneficiaries || "-",
+      "ผู้ประสานงาน": r.surveyor || r.contactPerson || "-",
+      "เบอร์โทรติดต่อ": r.phone || "-",
     }));
-
     const ws1 = XLSX.utils.json_to_sheet(rawData);
-    
-    // Auto-size columns for Sheet 1
-    const colWidths = Object.keys(rawData[0] || {}).map(k => ({ wch: Math.max(k.length, 15) }));
-    ws1["!cols"] = colWidths;
+    ws1["!cols"] = Object.keys(rawData[0] || {}).map(k => ({ wch: Math.max(k.length + 2, 12) }));
+    XLSX.utils.book_append_sheet(wb, ws1, "1.ข้อมูลดิบทั้งหมด");
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws1, "ฐานข้อมูลคำขอทั้งหมด");
+    // ชีต 2: สรุปตามหน่วยงาน
+    const byB: Record<string, { count: number; points: number; high: number }> = {};
+    data.forEach(r => {
+      const k = ORG_STRUCTURE.find(x => x.value === r.bureau)?.label || r.bureau || "ไม่ระบุ";
+      byB[k] = byB[k] || { count: 0, points: 0, high: 0 };
+      byB[k].count++; byB[k].points += pts(r);
+      if (r.urgency === "high") byB[k].high++;
+    });
+    const sum2 = Object.entries(byB)
+      .map(([k, v]) => ({ "หน่วยงาน": k, "จำนวนคำขอ": v.count, "รวมจุด": v.points, "ด่วนมาก": v.high }))
+      .sort((a, b) => b["รวมจุด"] - a["รวมจุด"]);
+    sum2.push({ "หน่วยงาน": "รวมทั้งสิ้น", "จำนวนคำขอ": data.length, "รวมจุด": totalPoints, "ด่วนมาก": data.filter(r => r.urgency === "high").length });
+    const ws2 = XLSX.utils.json_to_sheet(sum2);
+    ws2["!cols"] = [{ wch: 40 }, { wch: 12 }, { wch: 10 }, { wch: 10 }];
+    XLSX.utils.book_append_sheet(wb, ws2, "2.สรุปตามหน่วยงาน");
 
-    XLSX.writeFile(wb, "Soundscape_Survey_Data.xlsx");
+    XLSX.writeFile(wb, `รายงานสรุปแบบสำรวจ_${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
   const filteredRequests = requests.filter(r => {
@@ -220,7 +258,7 @@ const Dashboard = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4">
           <div>
             <h2 className="text-xl font-bold text-slate-800">ภาพรวมการสำรวจ (Overview)</h2>
-            <p className="text-sm text-slate-500 mt-1">ข้อมูลดึงตรงจากฐานข้อมูลจำลอง (json-server)</p>
+            <p className="text-sm text-slate-500 mt-1">ข้อมูลดึงตรงจากฐานข้อมูล Firestore (เรียลไทม์)</p>
           </div>
           
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-4 w-full lg:w-auto">
