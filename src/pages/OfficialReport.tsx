@@ -73,7 +73,7 @@ const OfficialReport = () => {
     : "-";
 
   return (
-    <div className="min-h-screen bg-slate-200 font-sarabun text-black print:bg-white">
+    <div className="min-h-screen bg-neutral-200 font-sarabun text-black print:bg-white">
       {/* แถบควบคุม (ไม่พิมพ์) */}
       <div className="print:hidden p-4 bg-white border-b flex justify-between items-center shadow-sm sticky top-0 z-50">
         <Button asChild variant="outline">
@@ -88,18 +88,18 @@ const OfficialReport = () => {
       {/* หน้า A4 */}
       <div className="max-w-[210mm] min-h-[297mm] mx-auto bg-white px-[20mm] py-[15mm] shadow-2xl print:shadow-none print:p-[12mm] my-8 print:my-0 text-[15px] leading-relaxed relative">
         {/* ตราและหัวหน่วยงาน */}
-        <div className="text-center border-b-2 border-slate-800 pb-3 mb-5">
-          <img src="/nsm-logo.jpg" alt="ตราเทศบาลนครนครสวรรค์" className="mx-auto mb-2 h-16 w-auto object-contain" />
-
-          <div className="text-[20px] font-bold">{orgName}</div>
-          <div className="text-[13px] text-slate-600">กองยุทธศาสตร์และงบประมาณ · กลุ่มงานสถิติข้อมูลและสารสนเทศ</div>
+        <div className="text-center border-b-[3px] border-[#14325d] pb-3 mb-5 relative">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#14325d] via-[#1f8f93] to-[#14325d] rounded-full" />
+          <img src="/nsm-logo.jpg" alt="ตราเทศบาลนครนครสวรรค์" className="mx-auto mb-2 mt-3 h-16 w-auto object-contain" />
+          <div className="text-[20px] font-bold text-[#14325d]">{orgName}</div>
+          <div className="text-[13px] font-semibold text-[#1f8f93]">กองยุทธศาสตร์และงบประมาณ · กลุ่มงานสถิติข้อมูลและสารสนเทศ</div>
           <div className="text-[12px] text-slate-500">เลขที่ ๑๑๒ ถนนอรรถกวี ตำบลปากน้ำโพ อำเภอเมืองนครสวรรค์ จังหวัดนครสวรรค์ ๖๐๐๐๐ · โทร. ๐-๕๖๒๑-๙๕๕๕</div>
         </div>
 
         {/* ชื่อรายงาน */}
         <div className="text-center mb-5">
-          <h1 className="text-[19px] font-bold">รายงานสรุปผลการสำรวจ{title}</h1>
-          <h2 className="text-[16px] font-bold">ประจำปีงบประมาณ พ.ศ. {fiscalYear}</h2>
+          <h1 className="text-[19px] font-bold text-[#14325d]">รายงานสรุปผลการสำรวจ{title}</h1>
+          <h2 className="text-[16px] font-bold text-[#14325d]">ประจำปีงบประมาณ พ.ศ. {fiscalYear}</h2>
         </div>
 
         {/* ข้อมูลเอกสาร */}
@@ -120,8 +120,8 @@ const OfficialReport = () => {
 
         {/* หมายเหตุ: รายงานนี้กรองตามเงื่อนไขที่เลือกจากหน้า Dashboard */}
         {filterNotes.length > 0 && (
-          <div className="border border-slate-400 bg-slate-50 rounded px-3 py-2 mb-4 text-[12.5px] print:bg-white">
-            <span className="font-bold">หมายเหตุ:</span> รายงานนี้แสดงเฉพาะข้อมูลตามเงื่อนไขที่เลือก — {filterNotes.join(" · ")}
+          <div className="border-l-4 border-[#1f8f93] bg-[#f4f8fc] rounded-r px-3 py-2 mb-4 text-[12.5px]">
+            <span className="font-bold text-[#14325d]">หมายเหตุ:</span> รายงานนี้แสดงเฉพาะข้อมูลตามเงื่อนไขที่เลือก — {filterNotes.join(" · ")}
           </div>
         )}
 
@@ -139,31 +139,31 @@ const OfficialReport = () => {
             </p>
 
             {/* ๑. สรุปตามหน่วยงาน */}
-            <h3 className="font-bold text-[16px] mb-1 mt-4">๑. สรุปตามหน่วยงาน</h3>
-            <table className="w-full border-collapse border border-slate-700 text-[13px] mb-5">
+            <h3 className="font-bold text-[16px] text-[#14325d] border-l-4 border-[#1f8f93] pl-2 mb-1 mt-4">๑. สรุปตามหน่วยงาน</h3>
+            <table className="w-full border-collapse border border-[#9bb3cc] text-[13px] mb-5">
               <thead>
-                <tr className="bg-slate-200">
-                  <th className="border border-slate-700 px-2 py-1.5 w-12 text-center">ลำดับ</th>
-                  <th className="border border-slate-700 px-2 py-1.5 text-left">หน่วยงาน</th>
-                  <th className="border border-slate-700 px-2 py-1.5 w-28 text-center">จำนวนคำขอ</th>
-                  <th className="border border-slate-700 px-2 py-1.5 w-28 text-center">รวมจุด</th>
+                <tr className="bg-[#14325d] text-white">
+                  <th className="border border-[#9bb3cc] px-2 py-1.5 w-12 text-center">ลำดับ</th>
+                  <th className="border border-[#9bb3cc] px-2 py-1.5 text-left">หน่วยงาน</th>
+                  <th className="border border-[#9bb3cc] px-2 py-1.5 w-28 text-center">จำนวนคำขอ</th>
+                  <th className="border border-[#9bb3cc] px-2 py-1.5 w-28 text-center">รวมจุด</th>
                 </tr>
               </thead>
               <tbody>
                 {Object.entries(byBureau).sort((a, b) => b[1].points - a[1].points).map(([name, v], i) => (
-                  <tr key={name} className={i % 2 ? "bg-slate-50" : ""}>
-                    <td className="border border-slate-700 px-2 py-1.5 text-center">{i + 1}</td>
-                    <td className="border border-slate-700 px-2 py-1.5">{name}</td>
-                    <td className="border border-slate-700 px-2 py-1.5 text-center">{v.count}</td>
-                    <td className="border border-slate-700 px-2 py-1.5 text-center">{v.points}</td>
+                  <tr key={name} className={i % 2 ? "bg-[#f4f8fc]" : ""}>
+                    <td className="border border-[#9bb3cc] px-2 py-1.5 text-center">{i + 1}</td>
+                    <td className="border border-[#9bb3cc] px-2 py-1.5">{name}</td>
+                    <td className="border border-[#9bb3cc] px-2 py-1.5 text-center">{v.count}</td>
+                    <td className="border border-[#9bb3cc] px-2 py-1.5 text-center">{v.points}</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
-                <tr className="font-bold bg-slate-100">
-                  <td className="border border-slate-700 px-2 py-1.5 text-right" colSpan={2}>รวมทั้งสิ้น</td>
-                  <td className="border border-slate-700 px-2 py-1.5 text-center">{rows.length}</td>
-                  <td className="border border-slate-700 px-2 py-1.5 text-center">{totalPoints}</td>
+                <tr className="font-bold bg-[#e8eef6] text-[#14325d]">
+                  <td className="border border-[#9bb3cc] px-2 py-1.5 text-right" colSpan={2}>รวมทั้งสิ้น</td>
+                  <td className="border border-[#9bb3cc] px-2 py-1.5 text-center">{rows.length}</td>
+                  <td className="border border-[#9bb3cc] px-2 py-1.5 text-center">{totalPoints}</td>
                 </tr>
               </tfoot>
             </table>
@@ -171,42 +171,42 @@ const OfficialReport = () => {
             {/* ๒. + ๓. เคียงกัน */}
             <div className="grid grid-cols-2 gap-5 mb-5">
               <div>
-                <h3 className="font-bold text-[16px] mb-1">๒. จำแนกตามความเร่งด่วน</h3>
-                <table className="w-full border-collapse border border-slate-700 text-[13px]">
+                <h3 className="font-bold text-[16px] text-[#14325d] border-l-4 border-[#1f8f93] pl-2 mb-1">๒. จำแนกตามความเร่งด่วน</h3>
+                <table className="w-full border-collapse border border-[#9bb3cc] text-[13px]">
                   <thead>
-                    <tr className="bg-slate-200">
-                      <th className="border border-slate-700 px-2 py-1.5 text-left">ระดับ</th>
-                      <th className="border border-slate-700 px-2 py-1.5 text-center">คำขอ</th>
-                      <th className="border border-slate-700 px-2 py-1.5 text-center">จุด</th>
+                    <tr className="bg-[#14325d] text-white">
+                      <th className="border border-[#9bb3cc] px-2 py-1.5 text-left">ระดับ</th>
+                      <th className="border border-[#9bb3cc] px-2 py-1.5 text-center">คำขอ</th>
+                      <th className="border border-[#9bb3cc] px-2 py-1.5 text-center">จุด</th>
                     </tr>
                   </thead>
                   <tbody>
                     {["สูง", "ปานกลาง", "ต่ำ"].filter((k) => byUrgency[k]).map((k) => (
                       <tr key={k}>
-                        <td className="border border-slate-700 px-2 py-1.5">{k}</td>
-                        <td className="border border-slate-700 px-2 py-1.5 text-center">{byUrgency[k].count}</td>
-                        <td className="border border-slate-700 px-2 py-1.5 text-center">{byUrgency[k].points}</td>
+                        <td className="border border-[#9bb3cc] px-2 py-1.5">{k}</td>
+                        <td className="border border-[#9bb3cc] px-2 py-1.5 text-center">{byUrgency[k].count}</td>
+                        <td className="border border-[#9bb3cc] px-2 py-1.5 text-center">{byUrgency[k].points}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
               <div>
-                <h3 className="font-bold text-[16px] mb-1">๓. จำแนกตามประเภทอุปกรณ์</h3>
-                <table className="w-full border-collapse border border-slate-700 text-[13px]">
+                <h3 className="font-bold text-[16px] text-[#14325d] border-l-4 border-[#1f8f93] pl-2 mb-1">๓. จำแนกตามประเภทอุปกรณ์</h3>
+                <table className="w-full border-collapse border border-[#9bb3cc] text-[13px]">
                   <thead>
-                    <tr className="bg-slate-200">
-                      <th className="border border-slate-700 px-2 py-1.5 text-left">ประเภท</th>
-                      <th className="border border-slate-700 px-2 py-1.5 text-center">คำขอ</th>
-                      <th className="border border-slate-700 px-2 py-1.5 text-center">จุด</th>
+                    <tr className="bg-[#14325d] text-white">
+                      <th className="border border-[#9bb3cc] px-2 py-1.5 text-left">ประเภท</th>
+                      <th className="border border-[#9bb3cc] px-2 py-1.5 text-center">คำขอ</th>
+                      <th className="border border-[#9bb3cc] px-2 py-1.5 text-center">จุด</th>
                     </tr>
                   </thead>
                   <tbody>
                     {Object.entries(byType).map(([k, v]) => (
                       <tr key={k}>
-                        <td className="border border-slate-700 px-2 py-1.5">{k}</td>
-                        <td className="border border-slate-700 px-2 py-1.5 text-center">{v.count}</td>
-                        <td className="border border-slate-700 px-2 py-1.5 text-center">{v.points}</td>
+                        <td className="border border-[#9bb3cc] px-2 py-1.5">{k}</td>
+                        <td className="border border-[#9bb3cc] px-2 py-1.5 text-center">{v.count}</td>
+                        <td className="border border-[#9bb3cc] px-2 py-1.5 text-center">{v.points}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -215,44 +215,44 @@ const OfficialReport = () => {
             </div>
 
             {/* ๔. รายละเอียดรายคำขอ */}
-            <h3 className="font-bold text-[16px] mb-1">๔. รายละเอียดรายคำขอ</h3>
-            <table className="w-full border-collapse border border-slate-700 text-[12px] mb-8">
+            <h3 className="font-bold text-[16px] text-[#14325d] border-l-4 border-[#1f8f93] pl-2 mb-1">๔. รายละเอียดรายคำขอ</h3>
+            <table className="w-full border-collapse border border-[#9bb3cc] text-[12px] mb-8">
               <thead>
-                <tr className="bg-slate-200">
-                  <th className="border border-slate-700 px-1 py-1.5 w-8 text-center">ที่</th>
-                  <th className="border border-slate-700 px-1 py-1.5 text-left">หน่วยงาน</th>
-                  <th className="border border-slate-700 px-1 py-1.5 text-left">สถานที่ติดตั้ง</th>
-                  <th className="border border-slate-700 px-1 py-1.5 text-left">ประเภท</th>
-                  <th className="border border-slate-700 px-1 py-1.5 w-12 text-center">จุด</th>
-                  <th className="border border-slate-700 px-1 py-1.5 w-14 text-center">เร่งด่วน</th>
-                  <th className="border border-slate-700 px-1 py-1.5 text-left">ผู้ประสานงาน / เวลา</th>
+                <tr className="bg-[#14325d] text-white">
+                  <th className="border border-[#9bb3cc] px-1 py-1.5 w-8 text-center">ที่</th>
+                  <th className="border border-[#9bb3cc] px-1 py-1.5 text-left">หน่วยงาน</th>
+                  <th className="border border-[#9bb3cc] px-1 py-1.5 text-left">สถานที่ติดตั้ง</th>
+                  <th className="border border-[#9bb3cc] px-1 py-1.5 text-left">ประเภท</th>
+                  <th className="border border-[#9bb3cc] px-1 py-1.5 w-12 text-center">จุด</th>
+                  <th className="border border-[#9bb3cc] px-1 py-1.5 w-14 text-center">เร่งด่วน</th>
+                  <th className="border border-[#9bb3cc] px-1 py-1.5 text-left">ผู้ประสานงาน / เวลา</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((req, i) => (
-                  <tr key={req.id} className={i % 2 ? "bg-slate-50" : ""}>
-                    <td className="border border-slate-700 px-1 py-1.5 text-center">{i + 1}</td>
-                    <td className="border border-slate-700 px-1 py-1.5">{getDeptName(req.bureau, req.division)}</td>
-                    <td className="border border-slate-700 px-1 py-1.5">{req.building} {req.floor && `ชั้น ${req.floor}`} {req.room}</td>
-                    <td className="border border-slate-700 px-1 py-1.5">{labelFrom(SPEAKER_TYPES, req.speakerType)}</td>
-                    <td className="border border-slate-700 px-1 py-1.5 text-center">{req.proposedCount}</td>
-                    <td className="border border-slate-700 px-1 py-1.5 text-center">{urgencyText(req.urgency)}</td>
-                    <td className="border border-slate-700 px-1 py-1.5">
+                  <tr key={req.id} className={i % 2 ? "bg-[#f4f8fc]" : ""}>
+                    <td className="border border-[#9bb3cc] px-1 py-1.5 text-center">{i + 1}</td>
+                    <td className="border border-[#9bb3cc] px-1 py-1.5">{getDeptName(req.bureau, req.division)}</td>
+                    <td className="border border-[#9bb3cc] px-1 py-1.5">{req.building} {req.floor && `ชั้น ${req.floor}`} {req.room}</td>
+                    <td className="border border-[#9bb3cc] px-1 py-1.5">{labelFrom(SPEAKER_TYPES, req.speakerType)}</td>
+                    <td className="border border-[#9bb3cc] px-1 py-1.5 text-center">{req.proposedCount}</td>
+                    <td className="border border-[#9bb3cc] px-1 py-1.5 text-center">{urgencyText(req.urgency)}</td>
+                    <td className="border border-[#9bb3cc] px-1 py-1.5">
                       {req.surveyor || req.contactPerson || "-"}{req.phone ? ` (${req.phone})` : ""}
                       {formatThaiTime(req) && <span className="block text-[10px] text-slate-500">{req.date} {formatThaiTime(req)}</span>}
                     </td>
                   </tr>
                 ))}
                 {rows.length === 0 && (
-                  <tr><td colSpan={7} className="border border-slate-700 px-2 py-4 text-center">ไม่มีข้อมูลการสำรวจ</td></tr>
+                  <tr><td colSpan={7} className="border border-[#9bb3cc] px-2 py-4 text-center">ไม่มีข้อมูลการสำรวจ</td></tr>
                 )}
               </tbody>
               {rows.length > 0 && (
                 <tfoot>
-                  <tr className="font-bold bg-slate-100">
-                    <td colSpan={4} className="border border-slate-700 px-2 py-1.5 text-right">รวมจำนวนจุดติดตั้งทั้งสิ้น</td>
-                    <td className="border border-slate-700 px-2 py-1.5 text-center">{totalPoints}</td>
-                    <td className="border border-slate-700 px-2 py-1.5" colSpan={2}></td>
+                  <tr className="font-bold bg-[#e8eef6] text-[#14325d]">
+                    <td colSpan={4} className="border border-[#9bb3cc] px-2 py-1.5 text-right">รวมจำนวนจุดติดตั้งทั้งสิ้น</td>
+                    <td className="border border-[#9bb3cc] px-2 py-1.5 text-center">{totalPoints}</td>
+                    <td className="border border-[#9bb3cc] px-2 py-1.5" colSpan={2}></td>
                   </tr>
                 </tfoot>
               )}
