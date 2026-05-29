@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Shield, ArrowLeft } from "lucide-react";
+
+const ADMIN_USER = "pop";
+const ADMIN_PASS = "pop";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -10,12 +13,22 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  // Always start from a logged-out state when the login page loads. Without
+  // this, a stale `isAdmin` session from a previous login would let anyone
+  // reach the dashboard regardless of the credentials entered here.
+  useEffect(() => {
+    sessionStorage.removeItem("isAdmin");
+  }, []);
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === "pop" && password === "pop") {
+    if (username.trim() === ADMIN_USER && password === ADMIN_PASS) {
       sessionStorage.setItem("isAdmin", "true");
+      setError("");
       navigate("/admin/dashboard");
     } else {
+      // Reject: ensure no session is granted and surface a visible error.
+      sessionStorage.removeItem("isAdmin");
       setError("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
     }
   };
@@ -38,7 +51,7 @@ const Login = () => {
         
         <form onSubmit={handleLogin} className="p-8 space-y-5">
           {error && (
-            <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100 text-center">
+            <div role="alert" aria-live="assertive" className="p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100 text-center">
               {error}
             </div>
           )}
