@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Download, Filter, MapPin, Search, Speaker, Activity, Clock, ShieldAlert, LogOut, Loader2, FileText, QrCode, X, Trash2, Edit, Settings, ArrowDownUp, EyeOff, Eye, FlaskConical } from "lucide-react";
+import { ArrowLeft, Download, Filter, MapPin, Search, Speaker, Activity, Clock, ShieldAlert, LogOut, Loader2, FileText, QrCode, X, Trash2, Edit, Settings, ArrowDownUp, EyeOff, Eye, FlaskConical, AlertTriangle, Phone, Building2, User } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
-import { ORG_STRUCTURE, SPEAKER_TYPES, STATUS_OPTIONS } from "@/survey/types";
+import { ORG_STRUCTURE, SPEAKER_TYPES, STATUS_OPTIONS, PROBLEM_OPTIONS } from "@/survey/types";
 import { isLikelyTest, formatThaiDateTime, applyFilters, filtersToParams, type SurveyFilters } from "@/survey/surveyUtils";
 import * as XLSX from "xlsx";
 import { QRCodeCanvas } from "qrcode.react";
@@ -96,15 +96,30 @@ const Dashboard = () => {
   };
 
   const [editingRequest, setEditingRequest] = useState<any>(null);
+  const [viewingRequest, setViewingRequest] = useState<any>(null);
+  const [deletingRequest, setDeletingRequest] = useState<any>(null);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm(`คุณต้องการลบข้อมูล ${id} ใช่หรือไม่?`)) return;
+  const handleDelete = async () => {
+    if (!deletingRequest) return;
     try {
-      await deleteDoc(doc(db, "surveys", id));
-      setRequests(reqs => reqs.filter(r => r.id !== id));
+      await deleteDoc(doc(db, "surveys", deletingRequest.id));
+      setRequests(reqs => reqs.filter(r => r.id !== deletingRequest.id));
+      setDeletingRequest(null);
       toast({ title: "ลบข้อมูลสำเร็จ" });
     } catch (err) {
       toast({ title: "เกิดข้อผิดพลาดในการลบข้อมูล", variant: "destructive" });
+    }
+  };
+
+  const handleQuickStatusChange = async (req: any, newStatus: string) => {
+    try {
+      await updateDoc(doc(db, "surveys", req.id), { status: newStatus });
+      const updated = { ...req, status: newStatus };
+      setRequests(reqs => reqs.map(r => r.id === req.id ? updated : r));
+      if (viewingRequest?.id === req.id) setViewingRequest(updated);
+      toast({ title: "อัปเดตสถานะเรียบร้อยแล้ว" });
+    } catch {
+      toast({ title: "เกิดข้อผิดพลาด", variant: "destructive" });
     }
   };
 
@@ -440,8 +455,8 @@ const Dashboard = () => {
                   </tr>
                 ) : (
                   sortedRequests.map((req) => (
-                    <tr key={req.id} className="hover:bg-slate-50/80 transition-colors group">
-                      <td className="py-4 px-5">
+                    <tr key={req.id} className="hover:bg-slate-50/80 transition-colors group cursor-pointer" onClick={() => setViewingRequest(req)}>
+                      <td className="py-3 px-5">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-semibold text-slate-900 group-hover:text-primary transition-colors">{req.id}</span>
                           {isLikelyTest(req) && (
@@ -451,22 +466,56 @@ const Dashboard = () => {
                           )}
                         </div>
                         <div className="text-xs text-slate-500">{formatThaiDateTime(req)}</div>
+                        {(req.surveyor || req.contactPerson) && (
+                          <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                            <User className="w-3 h-3" />{req.surveyor || req.contactPerson}
+                            {req.phone && <span className="text-slate-300">·</span>}
+                            {req.phone && <span className="flex items-center gap-0.5"><Phone className="w-3 h-3" />{req.phone}</span>}
+                          </div>
+                        )}
                       </td>
-                      <td className="py-4 px-5 text-sm text-slate-700">{getDeptName(req.bureau, req.division)}</td>
-                      <td className="py-4 px-5 text-sm text-slate-700">{req.building} {req.floor && `(${req.floor})`}</td>
-                      <td className="py-4 px-5 text-sm text-slate-700">{labelFrom(SPEAKER_TYPES, req.speakerType)} จำนวน <span className="font-semibold text-slate-900">{req.proposedCount}</span> หน่วย</td>
-                      <td className="py-4 px-5 text-center">
+                      <td className="py-3 px-5">
+                        <div className="text-sm font-medium text-slate-800">{getDeptName(req.bureau, req.division)}</div>
+                        {req.section && <div className="text-xs text-slate-400">{req.section}</div>}
+                      </td>
+                      <td className="py-3 px-5">
+                        <div className="text-sm text-slate-700 flex items-center gap-1"><Building2 className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />{req.building}</div>
+                        {(req.floor || req.room) && (
+                          <div className="text-xs text-slate-500 mt-0.5 pl-4">
+                            {req.floor && `ชั้น ${req.floor}`}{req.floor && req.room && ' · '}{req.room}
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3 px-5">
+                        <div className="text-sm text-slate-700">{labelFrom(SPEAKER_TYPES, req.speakerType)} <span className="font-semibold text-slate-900">{req.proposedCount}</span> หน่วย</div>
+                        {req.reasonForNeed && (
+                          <div className="text-xs text-slate-400 mt-0.5 truncate max-w-[180px]" title={req.reasonForNeed}>
+                            {req.reasonForNeed}
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3 px-5 text-center">
                         {urgencyBadge(req.urgency)}
                       </td>
-                      <td className="py-4 px-5 text-center">
-                        {statusBadge(req.status)}
+                      <td className="py-3 px-5 text-center">
+                        <select
+                          className="text-xs border border-slate-200 rounded px-1.5 py-1 bg-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
+                          value={req.status || "pending"}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) => { e.stopPropagation(); handleQuickStatusChange(req, e.target.value); }}
+                        >
+                          {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                        </select>
                       </td>
-                      <td className="py-4 px-5 text-right">
-                        <div className="flex justify-end gap-2 opacity-100 md:opacity-50 md:group-hover:opacity-100 transition-opacity">
-                          <Button variant="outline" size="sm" onClick={() => setEditingRequest(req)} className="h-8 w-8 p-0 text-slate-500 hover:text-primary hover:bg-primary/5 hover:border-primary/20">
+                      <td className="py-3 px-5 text-right">
+                        <div className="flex justify-end gap-1.5 opacity-100 md:opacity-50 md:group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                          <Button variant="outline" size="sm" onClick={() => setViewingRequest(req)} className="h-8 w-8 p-0 text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200" title="ดูรายละเอียด">
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => setEditingRequest(req)} className="h-8 w-8 p-0 text-slate-500 hover:text-primary hover:bg-primary/5 hover:border-primary/20" title="แก้ไข">
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleDelete(req.id)} className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 border-red-200">
+                          <Button variant="outline" size="sm" onClick={() => setDeletingRequest(req)} className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 border-red-200" title="ลบ">
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -520,6 +569,203 @@ const Dashboard = () => {
                 }
               }} className="w-full bg-primary hover:bg-primary-glow text-white">
                 <Download className="w-4 h-4 mr-2" /> ดาวน์โหลด QR Code (PNG)
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Detail Modal */}
+      {viewingRequest && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden relative flex flex-col max-h-[90vh]">
+            <div className="p-4 border-b flex justify-between items-center flex-shrink-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-bold text-lg text-slate-900">{viewingRequest.id}</h3>
+                {isLikelyTest(viewingRequest) && (
+                  <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-700 border border-orange-200">
+                    <FlaskConical className="w-3 h-3" /> ทดสอบ
+                  </span>
+                )}
+                {statusBadge(viewingRequest.status)}
+              </div>
+              <button onClick={() => setViewingRequest(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto p-5 space-y-4">
+              <p className="text-xs text-slate-400">{formatThaiDateTime(viewingRequest)}</p>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                  <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">หน่วยงาน</div>
+                  <div className="text-sm font-medium text-slate-800">{getDeptName(viewingRequest.bureau, viewingRequest.division)}</div>
+                  {viewingRequest.section && <div className="text-xs text-slate-500 mt-0.5">{viewingRequest.section}</div>}
+                </div>
+                <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                  <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">สถานที่ติดตั้ง</div>
+                  <div className="text-sm font-medium text-slate-800 flex items-center gap-1">
+                    <Building2 className="w-3.5 h-3.5 text-slate-400" />{viewingRequest.building}
+                  </div>
+                  {(viewingRequest.floor || viewingRequest.room) && (
+                    <div className="text-xs text-slate-500 mt-0.5 pl-4">
+                      {viewingRequest.floor && `ชั้น ${viewingRequest.floor}`}{viewingRequest.floor && viewingRequest.room && ' · '}{viewingRequest.room}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                  <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">ผู้ประสานงาน</div>
+                  <div className="text-sm font-medium text-slate-800">{viewingRequest.surveyor || viewingRequest.contactPerson || '-'}</div>
+                  {viewingRequest.phone && (
+                    <div className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
+                      <Phone className="w-3 h-3" /> {viewingRequest.phone}
+                    </div>
+                  )}
+                </div>
+                <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                  <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">ความเร่งด่วน</div>
+                  <div className="mt-1">{urgencyBadge(viewingRequest.urgency)}</div>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
+                <div className="text-[11px] font-semibold text-blue-600 uppercase tracking-wide mb-1">ความต้องการ</div>
+                <div className="text-sm font-semibold text-slate-800">
+                  {labelFrom(SPEAKER_TYPES, viewingRequest.speakerType)} จำนวน <span className="text-blue-700">{viewingRequest.proposedCount}</span> หน่วย
+                </div>
+                {viewingRequest.speakerTypeOther && <div className="text-xs text-slate-600 mt-0.5">ประเภท: {viewingRequest.speakerTypeOther}</div>}
+                {viewingRequest.proposedPosition && <div className="text-xs text-slate-600 mt-0.5">ตำแหน่ง: {viewingRequest.proposedPosition}</div>}
+              </div>
+
+              {viewingRequest.problems?.length > 0 && (
+                <div>
+                  <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5">ปัญหาที่พบ</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(viewingRequest.problems as string[]).map((p) => (
+                      <span key={p} className="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded-full text-xs">{labelFrom(PROBLEM_OPTIONS, p)}</span>
+                    ))}
+                    {viewingRequest.problemsOther && (
+                      <span className="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded-full text-xs">{viewingRequest.problemsOther}</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {viewingRequest.reasonForNeed && (
+                <div>
+                  <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">เหตุผลความจำเป็น</div>
+                  <div className="text-sm text-slate-700 bg-slate-50 rounded-lg p-3 border border-slate-100 leading-relaxed">{viewingRequest.reasonForNeed}</div>
+                </div>
+              )}
+
+              {viewingRequest.beneficiaries && (
+                <div>
+                  <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">ผู้ได้รับประโยชน์</div>
+                  <div className="text-sm text-slate-700">{viewingRequest.beneficiaries}</div>
+                </div>
+              )}
+
+              {viewingRequest.satisfaction && (
+                <div>
+                  <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">ความพึงพอใจปัจจุบัน</div>
+                  <div className="flex items-center gap-0.5">
+                    {[1,2,3,4,5].map(n => (
+                      <span key={n} className={`text-xl ${n <= Number(viewingRequest.satisfaction) ? 'text-amber-400' : 'text-slate-200'}`}>★</span>
+                    ))}
+                    <span className="text-sm text-slate-500 ml-1.5">{viewingRequest.satisfaction}/5</span>
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5">เปลี่ยนสถานะอย่างรวดเร็ว</div>
+                <select
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                  value={viewingRequest.status || "pending"}
+                  onChange={(e) => handleQuickStatusChange(viewingRequest, e.target.value)}
+                >
+                  {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                </select>
+              </div>
+            </div>
+
+            <div className="p-4 border-t bg-slate-50 flex justify-between items-center flex-shrink-0">
+              <Button variant="outline" size="sm" onClick={() => { setDeletingRequest(viewingRequest); setViewingRequest(null); }} className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300">
+                <Trash2 className="w-4 h-4 mr-1.5" /> ลบรายการนี้
+              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => { setEditingRequest(viewingRequest); setViewingRequest(null); }}>
+                  <Edit className="w-4 h-4 mr-1.5" /> แก้ไข
+                </Button>
+                <Button size="sm" onClick={() => setViewingRequest(null)} className="bg-primary text-white">ปิด</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deletingRequest && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="p-5 flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 text-base">ยืนยันการลบข้อมูล</h3>
+                <p className="text-sm text-slate-500 mt-0.5">การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>
+              </div>
+            </div>
+
+            <div className="px-5 pb-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-2 text-sm">
+                <div className="flex gap-3">
+                  <span className="text-slate-500 w-24 flex-shrink-0">รหัสอ้างอิง</span>
+                  <span className="font-semibold text-slate-900">{deletingRequest.id}</span>
+                </div>
+                <div className="flex gap-3">
+                  <span className="text-slate-500 w-24 flex-shrink-0">หน่วยงาน</span>
+                  <span className="text-slate-800">{getDeptName(deletingRequest.bureau, deletingRequest.division)}</span>
+                </div>
+                <div className="flex gap-3">
+                  <span className="text-slate-500 w-24 flex-shrink-0">สถานที่</span>
+                  <span className="text-slate-800">{deletingRequest.building}{deletingRequest.floor ? ` ชั้น ${deletingRequest.floor}` : ''}{deletingRequest.room ? ` · ${deletingRequest.room}` : ''}</span>
+                </div>
+                <div className="flex gap-3">
+                  <span className="text-slate-500 w-24 flex-shrink-0">ความต้องการ</span>
+                  <span className="text-slate-800">{labelFrom(SPEAKER_TYPES, deletingRequest.speakerType)} {deletingRequest.proposedCount} หน่วย</span>
+                </div>
+                <div className="flex gap-3">
+                  <span className="text-slate-500 w-24 flex-shrink-0">วันที่</span>
+                  <span className="text-slate-800">{formatThaiDateTime(deletingRequest)}</span>
+                </div>
+                {(deletingRequest.surveyor || deletingRequest.contactPerson) && (
+                  <div className="flex gap-3">
+                    <span className="text-slate-500 w-24 flex-shrink-0">ผู้ประสานงาน</span>
+                    <span className="text-slate-800">{deletingRequest.surveyor || deletingRequest.contactPerson}{deletingRequest.phone ? ` (${deletingRequest.phone})` : ''}</span>
+                  </div>
+                )}
+                <div className="pt-1 flex items-center gap-2">
+                  {urgencyBadge(deletingRequest.urgency)}
+                  {statusBadge(deletingRequest.status)}
+                  {isLikelyTest(deletingRequest) && (
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-orange-100 text-orange-700 border border-orange-200">
+                      <FlaskConical className="w-3 h-3" /> ข้อมูลทดสอบ
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 border-t flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setDeletingRequest(null)}>ยกเลิก</Button>
+              <Button onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white">
+                <Trash2 className="w-4 h-4 mr-1.5" /> ยืนยันลบ
               </Button>
             </div>
           </div>

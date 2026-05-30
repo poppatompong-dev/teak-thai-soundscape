@@ -1,0 +1,19 @@
+# CLAUDE.md
+
+Project: **teak-thai-soundscape** — แบบสำรวจความต้องการลำโพงประชาสัมพันธ์เสียงภายในอาคาร (PA Speaker Survey) สำหรับเทศบาลนครนครสวรรค์
+
+Stack: React 18 + TypeScript + Vite + Tailwind CSS + shadcn/ui + Firebase Firestore + json-server
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues for `poppatompong-dev/teak-thai-soundscape`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default label vocabulary (needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context repo — one `CONTEXT.md` + `docs/adr/` at the root. See `docs/agents/domain.md`.

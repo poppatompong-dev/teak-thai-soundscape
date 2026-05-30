@@ -93,7 +93,6 @@ const OfficialReport = () => {
           <img src="/nsm-logo.jpg" alt="ตราเทศบาลนครนครสวรรค์" className="mx-auto mb-2 mt-3 h-16 w-auto object-contain" />
           <div className="text-[20px] font-bold text-[#14325d]">{orgName}</div>
           <div className="text-[13px] font-semibold text-[#1f8f93]">กองยุทธศาสตร์และงบประมาณ · กลุ่มงานสถิติข้อมูลและสารสนเทศ</div>
-          <div className="text-[12px] text-slate-500">เลขที่ ๑๑๒ ถนนอรรถกวี ตำบลปากน้ำโพ อำเภอเมืองนครสวรรค์ จังหวัดนครสวรรค์ ๖๐๐๐๐ · โทร. ๐-๕๖๒๑-๙๕๕๕</div>
         </div>
 
         {/* ชื่อรายงาน */}
