@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Printer } from "lucide-react";
+import { ArrowLeft, Printer, Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ORG_STRUCTURE, SPEAKER_TYPES } from "@/survey/types";
+import { ORG_STRUCTURE, SPEAKER_TYPES, STATUS_OPTIONS } from "@/survey/types";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db, withRetry } from "@/lib/firebase";
 import { formatThaiTime, applyFilters, paramsToFilters, describeFilters } from "@/survey/surveyUtils";
@@ -28,9 +28,16 @@ const OfficialReport = () => {
   const [requests, setRequests] = useState<any[]>([]);
   const [settings, setSettings] = useState<any>({ orgName: "", surveyTitle: "", openDate: "", closeDate: "" });
   const [loading, setLoading] = useState(true);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const filters = paramsToFilters(searchParams);
   const filterNotes = describeFilters(filters);
+
+  const setFilter = (key: string, value: string, defaultVal = "all") => {
+    const p = new URLSearchParams(searchParams);
+    if (value === defaultVal) p.delete(key); else p.set(key, value);
+    setSearchParams(p, { replace: true });
+  };
+  const clearFilters = () => setSearchParams({}, { replace: true });
 
   useEffect(() => {
     withRetry(() => getDocs(collection(db, "surveys")))
@@ -75,14 +82,68 @@ const OfficialReport = () => {
   return (
     <div className="min-h-screen bg-neutral-200 font-sarabun text-black print:bg-white">
       {/* แถบควบคุม (ไม่พิมพ์) */}
-      <div className="print:hidden p-4 bg-white border-b flex justify-between items-center shadow-sm sticky top-0 z-50">
-        <Button asChild variant="outline">
-          <Link to="/admin/dashboard"><ArrowLeft className="w-4 h-4 mr-2" /> กลับ Dashboard</Link>
-        </Button>
-        <div className="text-sm text-slate-500 font-sans">แนะนำ: ตั้งค่าหน้ากระดาษ A4 แนวตั้ง • ปิด Header/Footer ของเบราว์เซอร์ • เปิด "กราฟิกพื้นหลัง"</div>
-        <Button onClick={handlePrint} className="bg-primary text-white">
-          <Printer className="w-4 h-4 mr-2" /> พิมพ์ / บันทึก PDF
-        </Button>
+      <div className="print:hidden sticky top-0 z-50 shadow-sm">
+        {/* แถวบน: ปุ่มนำทาง */}
+        <div className="p-3 bg-white border-b flex justify-between items-center gap-3">
+          <Button asChild variant="outline" size="sm">
+            <Link to="/admin/dashboard"><ArrowLeft className="w-4 h-4 mr-2" /> กลับ Dashboard</Link>
+          </Button>
+          <div className="text-xs text-slate-400 font-sans hidden md:block">A4 แนวตั้ง • ปิด Header/Footer เบราว์เซอร์ • เปิด "กราฟิกพื้นหลัง"</div>
+          <Button onClick={handlePrint} size="sm" className="bg-primary text-white">
+            <Printer className="w-4 h-4 mr-2" /> พิมพ์ / PDF
+          </Button>
+        </div>
+        {/* แถวล่าง: ตัวกรองรายงาน */}
+        <div className="p-2.5 bg-slate-50 border-b flex flex-wrap gap-2 items-center text-sm">
+          <div className="flex items-center gap-1.5 text-slate-500 font-medium text-xs">
+            <Filter className="w-3.5 h-3.5" /> ตัวกรองรายงาน:
+          </div>
+          <select
+            value={filters.bureau}
+            onChange={e => setFilter("bureau", e.target.value)}
+            className="h-8 rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="all">ทุกหน่วยงาน</option>
+            {ORG_STRUCTURE.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+          <select
+            value={filters.urgency}
+            onChange={e => setFilter("urg", e.target.value)}
+            className="h-8 rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="all">ทุกความเร่งด่วน</option>
+            <option value="high">สูง</option>
+            <option value="medium">ปานกลาง</option>
+            <option value="low">ต่ำ</option>
+          </select>
+          <select
+            value={filters.status}
+            onChange={e => setFilter("st", e.target.value)}
+            className="h-8 rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="all">ทุกสถานะ</option>
+            {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+          </select>
+          <select
+            value={filters.category}
+            onChange={e => setFilter("cat", e.target.value)}
+            className="h-8 rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="all">ทุกประเภท</option>
+            {SPEAKER_TYPES.filter(t => t.value !== "other").map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+          </select>
+          {filterNotes.length > 0 && (
+            <button
+              onClick={clearFilters}
+              className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 border border-red-200 rounded px-2 py-1 bg-red-50 hover:bg-red-100 transition-colors"
+            >
+              <X className="w-3 h-3" /> ล้างตัวกรอง
+            </button>
+          )}
+          <span className="text-xs text-slate-400 ml-auto">
+            แสดง <b className="text-slate-700">{rows.length}</b> รายการ · <b className="text-slate-700">{totalPoints}</b> จุด
+          </span>
+        </div>
       </div>
 
       {/* หน้า A4 */}
@@ -97,8 +158,9 @@ const OfficialReport = () => {
 
         {/* ชื่อรายงาน */}
         <div className="text-center mb-5">
-          <h1 className="text-[19px] font-bold text-[#14325d]">รายงานสรุปผลการสำรวจ{title}</h1>
-          <h2 className="text-[16px] font-bold text-[#14325d]">ประจำปีงบประมาณ พ.ศ. {fiscalYear}</h2>
+          <p className="text-[13px] font-semibold text-[#1f8f93] mb-1 tracking-wide">รายงานสรุปผลการสำรวจ</p>
+          <h1 className="text-[18px] font-bold text-[#14325d] leading-snug break-words hyphens-auto">{title}</h1>
+          <h2 className="text-[15px] font-semibold text-[#14325d] mt-1.5">ประจำปีงบประมาณ พ.ศ. {fiscalYear}</h2>
         </div>
 
         {/* ข้อมูลเอกสาร */}
